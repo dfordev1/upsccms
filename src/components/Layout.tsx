@@ -11,7 +11,8 @@ import {
   X,
   PieChart,
   Layers,
-  Activity
+  Activity,
+  History
 } from 'lucide-react';
 
 export default function Layout() {
@@ -24,6 +25,7 @@ export default function Layout() {
     { name: 'Question Bank', href: '/questions', icon: Database },
     { name: 'Upload CSV', href: '/upload', icon: Upload },
     { name: 'Create Test', href: '/test/create', icon: BrainCircuit },
+    { name: 'Test History', href: '/test/history', icon: History },
     { name: 'Analytics', href: '/analytics', icon: PieChart },
     { name: 'PYQ Analysis', href: '/pyq-analysis', icon: Activity },
     { name: 'Flashcards', href: '/flashcards', icon: Layers },

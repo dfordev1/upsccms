@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { collection, query, where, getDocs, deleteDoc, doc, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, deleteDoc, doc, orderBy, addDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../lib/AuthContext';
 import { Question } from '../types';
-import { Search, Filter, ChevronDown, ChevronUp, Edit2, Trash2, Database } from 'lucide-react';
+import { Search, Filter, ChevronDown, ChevronUp, Edit2, Trash2, Database, Plus } from 'lucide-react';
+import QuestionModal from '../components/QuestionModal';
 
 export default function QuestionBank() {
   const { user } = useAuth();
@@ -22,6 +23,9 @@ export default function QuestionBank() {
   const [subjects, setSubjects] = useState<string[]>([]);
   const [systems, setSystems] = useState<string[]>([]);
   const [years, setYears] = useState<number[]>([]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
   useEffect(() => {
     fetchQuestions();
@@ -84,6 +88,39 @@ export default function QuestionBank() {
     setExpandedId(expandedId === id ? null : id);
   };
 
+  const handleSaveQuestion = async (questionData: Partial<Question>) => {
+    try {
+      if (editingQuestion) {
+        // Update existing question
+        const docRef = doc(db, 'questions', editingQuestion.id);
+        await updateDoc(docRef, questionData);
+        setQuestions(questions.map(q => q.id === editingQuestion.id ? { ...q, ...questionData } as Question : q));
+      } else {
+        // Add new question
+        const newQuestion = {
+          ...questionData,
+          user_id: user?.uid,
+          created_at: new Date().toISOString()
+        };
+        const docRef = await addDoc(collection(db, 'questions'), newQuestion);
+        setQuestions([{ id: docRef.id, ...newQuestion } as Question, ...questions]);
+      }
+    } catch (error) {
+      console.error('Error saving question:', error);
+      throw error;
+    }
+  };
+
+  const openAddModal = () => {
+    setEditingQuestion(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (question: Question) => {
+    setEditingQuestion(question);
+    setIsModalOpen(true);
+  };
+
   const filteredQuestions = questions.filter(q => 
     q.stem.toLowerCase().includes(searchTerm.toLowerCase()) ||
     q.explanation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -99,7 +136,14 @@ export default function QuestionBank() {
             Manage and review your UPSC CMS questions.
           </p>
         </div>
-        <div className="mt-4 sm:mt-0">
+        <div className="mt-4 sm:mt-0 flex items-center space-x-4">
+          <button
+            onClick={openAddModal}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-uw-blue hover:bg-uw-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uw-blue"
+          >
+            <Plus className="mr-2 h-5 w-5" />
+            Add Question
+          </button>
           <div className="relative rounded-md shadow-sm">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-slate-400" />
@@ -210,6 +254,13 @@ export default function QuestionBank() {
                   </div>
                   <div className="flex items-center space-x-2">
                     <button 
+                      onClick={(e) => { e.stopPropagation(); openEditModal(q); }}
+                      className="p-1 text-slate-400 hover:text-uw-blue transition-colors"
+                      title="Edit question"
+                    >
+                      <Edit2 className="h-5 w-5" />
+                    </button>
+                    <button 
                       onClick={(e) => { e.stopPropagation(); handleDelete(q.id); }}
                       className="p-1 text-slate-400 hover:text-red-600 transition-colors"
                       title="Delete question"
@@ -287,6 +338,14 @@ export default function QuestionBank() {
           ))}
         </div>
       )}
+
+      <QuestionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveQuestion}
+        initialData={editingQuestion}
+        title={editingQuestion ? 'Edit Question' : 'Add New Question'}
+      />
     </div>
   );
 }

@@ -10,6 +10,7 @@ import QuestionBank from './pages/QuestionBank';
 import UploadCSV from './pages/UploadCSV';
 import CreateTest from './pages/CreateTest';
 import TestInterface from './pages/TestInterface';
+import TestHistory from './pages/TestHistory';
 import Analytics from './pages/Analytics';
 import Flashcards from './pages/Flashcards';
 import PYQAnalysis from './pages/PYQAnalysis';
@@ -46,6 +47,7 @@ export default function App() {
             <Route path="questions" element={<QuestionBank />} />
             <Route path="upload" element={<UploadCSV />} />
             <Route path="test/create" element={<CreateTest />} />
+            <Route path="test/history" element={<TestHistory />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="flashcards" element={<Flashcards />} />
             <Route path="pyq-analysis" element={<PYQAnalysis />} />

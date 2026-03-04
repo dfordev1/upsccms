@@ -53,7 +53,7 @@ export default function Dashboard() {
           where('user_id', '==', user.uid)
         );
         const testsSnapshot = await getDocs(testsQuery);
-        let tests = testsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TestSession));
+        const tests = testsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TestSession));
         
         // Sort manually since we can't easily combine where and orderBy without composite indexes
         tests.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -148,8 +148,13 @@ export default function Dashboard() {
           </div>
         </div>
         
-        <div className="bg-white shadow rounded-lg border border-slate-100 p-6">
-          <h2 className="text-lg font-medium text-uw-navy mb-4">Recent Tests</h2>
+        <div className="bg-white shadow rounded-lg border border-slate-100 p-6 flex flex-col">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-medium text-uw-navy">Recent Tests</h2>
+            <Link to="/test/history" className="text-sm text-uw-blue hover:text-uw-blue-hover font-medium">
+              View All
+            </Link>
+          </div>
           {recentTests.length === 0 ? (
             <div className="text-center py-6">
               <p className="text-sm text-slate-500">No recent tests found.</p>
