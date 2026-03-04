@@ -114,7 +114,7 @@ export default function Analytics() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uw-blue"></div>
       </div>
     );
   }
@@ -124,15 +124,15 @@ export default function Analytics() {
   const usagePercentage = overallStats.totalBankSize > 0 ? Math.round((overallStats.totalUsed / overallStats.totalBankSize) * 100) : 0;
 
   const pieData = [
-    { name: 'Correct', value: overallStats.correct, color: '#22c55e' }, // green-500
-    { name: 'Incorrect', value: overallStats.incorrect, color: '#ef4444' }, // red-500
+    { name: 'Correct', value: overallStats.correct, color: '#388E3C' }, // uw-green
+    { name: 'Incorrect', value: overallStats.incorrect, color: '#E57373' }, // uw-red
     { name: 'Omitted', value: overallStats.omitted, color: '#94a3b8' } // slate-400
   ].filter(d => d.value > 0);
 
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Performance Analytics</h1>
+        <h1 className="text-2xl font-bold text-uw-navy">Performance Analytics</h1>
         <p className="mt-1 text-sm text-slate-500">
           Track your progress, identify weak areas, and review your overall performance.
         </p>
@@ -142,11 +142,11 @@ export default function Analytics() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Overall Score */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col items-center justify-center text-center">
-          <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 mb-4">
-            <Target className="h-6 w-6 text-indigo-600" />
+          <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+            <Target className="h-6 w-6 text-uw-blue" />
           </div>
           <h2 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Overall Score</h2>
-          <div className="mt-2 flex items-baseline text-4xl font-extrabold text-slate-900">
+          <div className="mt-2 flex items-baseline text-4xl font-extrabold text-uw-navy">
             {overallPercentage}%
           </div>
           <p className="mt-1 text-sm text-slate-500">
@@ -158,15 +158,15 @@ export default function Analytics() {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-center">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-medium text-slate-500 uppercase tracking-wider">QBank Usage</h2>
-            <TrendingUp className="h-5 w-5 text-indigo-500" />
+            <TrendingUp className="h-5 w-5 text-uw-blue" />
           </div>
           <div className="flex items-end justify-between mb-2">
-            <span className="text-3xl font-bold text-slate-900">{usagePercentage}%</span>
+            <span className="text-3xl font-bold text-uw-navy">{usagePercentage}%</span>
             <span className="text-sm text-slate-500 mb-1">{overallStats.totalUsed} / {overallStats.totalBankSize} Qs</span>
           </div>
           <div className="w-full bg-slate-100 rounded-full h-3">
             <div
-              className="bg-indigo-600 h-3 rounded-full transition-all duration-500"
+              className="bg-uw-blue h-3 rounded-full transition-all duration-500"
               style={{ width: `${usagePercentage}%` }}
             ></div>
           </div>
@@ -176,24 +176,24 @@ export default function Analytics() {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-center space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+              <CheckCircle className="h-5 w-5 text-uw-green mr-2" />
               <span className="text-sm font-medium text-slate-700">Correct</span>
             </div>
-            <span className="text-sm font-bold text-slate-900">{overallStats.correct}</span>
+            <span className="text-sm font-bold text-uw-navy">{overallStats.correct}</span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <XCircle className="h-5 w-5 text-red-500 mr-2" />
+              <XCircle className="h-5 w-5 text-uw-red mr-2" />
               <span className="text-sm font-medium text-slate-700">Incorrect</span>
             </div>
-            <span className="text-sm font-bold text-slate-900">{overallStats.incorrect}</span>
+            <span className="text-sm font-bold text-uw-navy">{overallStats.incorrect}</span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <MinusCircle className="h-5 w-5 text-slate-400 mr-2" />
               <span className="text-sm font-medium text-slate-700">Omitted</span>
             </div>
-            <span className="text-sm font-bold text-slate-900">{overallStats.omitted}</span>
+            <span className="text-sm font-bold text-uw-navy">{overallStats.omitted}</span>
           </div>
         </div>
       </div>
@@ -201,7 +201,7 @@ export default function Analytics() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Pie Chart */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 col-span-1">
-          <h2 className="text-base font-semibold text-slate-900 mb-6">Performance Breakdown</h2>
+          <h2 className="text-base font-semibold text-uw-navy mb-6">Performance Breakdown</h2>
           {totalAnswered > 0 ? (
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -236,7 +236,7 @@ export default function Analytics() {
 
         {/* Subject Performance Bar Chart */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 col-span-1 lg:col-span-2">
-          <h2 className="text-base font-semibold text-slate-900 mb-6">Performance by Subject (%)</h2>
+          <h2 className="text-base font-semibold text-uw-navy mb-6">Performance by Subject (%)</h2>
           {subjectData.length > 0 ? (
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -263,7 +263,7 @@ export default function Analytics() {
                       'Score'
                     ]}
                   />
-                  <Bar dataKey="score" fill="#4f46e5" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                  <Bar dataKey="score" fill="#1565C0" radius={[4, 4, 0, 0]} maxBarSize={50} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -277,7 +277,7 @@ export default function Analytics() {
 
       {/* System Performance Bar Chart */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
-        <h2 className="text-base font-semibold text-slate-900 mb-6">Performance by System (%)</h2>
+        <h2 className="text-base font-semibold text-uw-navy mb-6">Performance by System (%)</h2>
         {systemData.length > 0 ? (
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -307,7 +307,7 @@ export default function Analytics() {
                     'Score'
                   ]}
                 />
-                <Bar dataKey="score" fill="#0ea5e9" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                <Bar dataKey="score" fill="#0D47A1" radius={[4, 4, 0, 0]} maxBarSize={40} />
               </BarChart>
             </ResponsiveContainer>
           </div>

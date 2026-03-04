@@ -28,9 +28,9 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar for desktop */}
-      <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-slate-900">
+      <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-uw-navy">
         <div className="flex-1 flex flex-col min-h-0">
-          <div className="flex items-center h-16 flex-shrink-0 px-4 bg-slate-950">
+          <div className="flex items-center h-16 flex-shrink-0 px-4 bg-[#061020]">
             <h1 className="text-xl font-bold text-white tracking-tight">UPSC CMS Prep</h1>
           </div>
           <div className="flex-1 flex flex-col overflow-y-auto">
@@ -43,7 +43,7 @@ export default function Layout() {
                     to={item.href}
                     className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
                       isActive
-                        ? 'bg-indigo-600 text-white'
+                        ? 'bg-uw-blue text-white'
                         : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
@@ -85,7 +85,7 @@ export default function Layout() {
       </div>
 
       {/* Mobile header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-10 bg-slate-900 h-16 flex items-center justify-between px-4">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-10 bg-uw-navy h-16 flex items-center justify-between px-4">
         <h1 className="text-xl font-bold text-white tracking-tight">UPSC CMS Prep</h1>
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -97,7 +97,7 @@ export default function Layout() {
 
       {/* Mobile menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-20 bg-slate-900 pt-16">
+        <div className="md:hidden fixed inset-0 z-20 bg-uw-navy pt-16">
           <nav className="px-2 py-4 space-y-1">
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;
@@ -108,7 +108,7 @@ export default function Layout() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`group flex items-center px-2 py-3 text-base font-medium rounded-md transition-colors ${
                     isActive
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-uw-blue text-white'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`}
                 >

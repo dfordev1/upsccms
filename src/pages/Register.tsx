@@ -31,16 +31,16 @@ export default function Register() {
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="h-12 w-12 rounded-full bg-indigo-600 flex items-center justify-center">
+          <div className="h-12 w-12 rounded-full bg-uw-blue flex items-center justify-center">
             <UserPlus className="h-6 w-6 text-white" />
           </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-uw-navy">
           Create an account
         </h2>
         <p className="mt-2 text-center text-sm text-slate-600">
           Or{' '}
-          <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+          <Link to="/login" className="font-medium text-uw-blue hover:text-uw-blue">
             sign in to your account
           </Link>
         </p>
@@ -62,7 +62,7 @@ export default function Register() {
                   <div className="mt-4">
                     <Link
                       to="/login"
-                      className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                      className="text-sm font-medium text-indigo-600 hover:text-blue-500"
                     >
                       Go to login &rarr;
                     </Link>
@@ -125,7 +125,7 @@ export default function Register() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                  className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-uw-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
                     loading ? 'opacity-75 cursor-not-allowed' : ''
                   }`}
                 >

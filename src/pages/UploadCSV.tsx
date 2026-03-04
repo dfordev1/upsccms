@@ -121,7 +121,7 @@ export default function UploadCSV() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Upload Questions</h1>
+        <h1 className="text-2xl font-bold text-uw-navy">Upload Questions</h1>
         <p className="mt-1 text-sm text-slate-500">
           Upload a CSV file containing your UPSC CMS questions.
         </p>
@@ -161,7 +161,7 @@ export default function UploadCSV() {
               <div className="flex text-sm text-slate-600 justify-center">
                 <label
                   htmlFor="file-upload"
-                  className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                  className="relative cursor-pointer bg-white rounded-md font-medium text-uw-blue hover:text-uw-blue focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
                 >
                   <span>Upload a file</span>
                   <input
@@ -207,7 +207,7 @@ export default function UploadCSV() {
               </div>
               <div className="w-full bg-slate-200 rounded-full h-2.5">
                 <div
-                  className="bg-indigo-600 h-2.5 rounded-full transition-all duration-300"
+                  className="bg-uw-blue h-2.5 rounded-full transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
@@ -218,7 +218,7 @@ export default function UploadCSV() {
             <button
               onClick={handleUpload}
               disabled={!file || loading}
-              className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+              className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-uw-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
                 (!file || loading) ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >

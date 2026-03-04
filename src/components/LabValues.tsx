@@ -50,8 +50,8 @@ export default function LabValues({ onClose }: { onClose: () => void }) {
               key={tab}
               className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab
-                  ? 'border-indigo-600 text-indigo-600 bg-white'
-                  : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'border-uw-blue text-uw-blue bg-white'
+                  : 'border-transparent text-slate-600 hover:text-uw-navy hover:bg-slate-100'
               }`}
               onClick={() => setActiveTab(tab)}
             >

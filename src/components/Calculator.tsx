@@ -61,7 +61,7 @@ export default function Calculator({ onClose }: { onClose: () => void }) {
           <button onClick={() => handleNumber('1')} className="bg-white border border-slate-200 p-2 rounded hover:bg-slate-50 font-semibold">1</button>
           <button onClick={() => handleNumber('2')} className="bg-white border border-slate-200 p-2 rounded hover:bg-slate-50 font-semibold">2</button>
           <button onClick={() => handleNumber('3')} className="bg-white border border-slate-200 p-2 rounded hover:bg-slate-50 font-semibold">3</button>
-          <button onClick={calculate} className="row-span-2 bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700 font-semibold">=</button>
+          <button onClick={calculate} className="row-span-2 bg-uw-blue text-white p-2 rounded hover:bg-uw-blue-hover font-semibold">=</button>
           
           <button onClick={() => handleNumber('0')} className="col-span-2 bg-white border border-slate-200 p-2 rounded hover:bg-slate-50 font-semibold">0</button>
           <button onClick={() => handleNumber('.')} className="bg-white border border-slate-200 p-2 rounded hover:bg-slate-50 font-semibold">.</button>

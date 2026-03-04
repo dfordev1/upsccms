@@ -94,10 +94,10 @@ export default function CreateTest() {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-8 text-center">
-        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-indigo-100 mb-4">
-          <BrainCircuit className="h-8 w-8 text-indigo-600" />
+        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-4">
+          <BrainCircuit className="h-8 w-8 text-uw-blue" />
         </div>
-        <h1 className="text-3xl font-bold text-slate-900">Create Test</h1>
+        <h1 className="text-3xl font-bold text-uw-navy">Create Test</h1>
         <p className="mt-2 text-lg text-slate-600">
           Configure your practice session to focus on specific areas.
         </p>
@@ -107,7 +107,7 @@ export default function CreateTest() {
         <div className="px-6 py-8 sm:p-10">
           <div className="flex items-center mb-6">
             <Settings className="h-5 w-5 text-slate-400 mr-2" />
-            <h2 className="text-xl font-semibold text-slate-900">Test Settings</h2>
+            <h2 className="text-xl font-semibold text-uw-navy">Test Settings</h2>
           </div>
 
           <div className="space-y-6">
@@ -115,11 +115,11 @@ export default function CreateTest() {
               <div className="col-span-1 sm:col-span-2">
                 <label className="block text-sm font-medium text-slate-700 mb-2">Test Mode</label>
                 <div className="flex space-x-4">
-                  <label className={`flex-1 flex items-center justify-center px-4 py-3 border rounded-lg cursor-pointer transition-colors ${config.mode === 'tutor' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-slate-200 hover:bg-slate-50'}`}>
+                  <label className={`flex-1 flex items-center justify-center px-4 py-3 border rounded-lg cursor-pointer transition-colors ${config.mode === 'tutor' ? 'border-uw-blue bg-blue-50 text-uw-blue' : 'border-slate-200 hover:bg-slate-50'}`}>
                     <input type="radio" className="sr-only" checked={config.mode === 'tutor'} onChange={() => setConfig({...config, mode: 'tutor'})} />
                     <span className="font-medium">Tutor Mode</span>
                   </label>
-                  <label className={`flex-1 flex items-center justify-center px-4 py-3 border rounded-lg cursor-pointer transition-colors ${config.mode === 'timed' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-slate-200 hover:bg-slate-50'}`}>
+                  <label className={`flex-1 flex items-center justify-center px-4 py-3 border rounded-lg cursor-pointer transition-colors ${config.mode === 'timed' ? 'border-uw-blue bg-blue-50 text-uw-blue' : 'border-slate-200 hover:bg-slate-50'}`}>
                     <input type="radio" className="sr-only" checked={config.mode === 'timed'} onChange={() => setConfig({...config, mode: 'timed'})} />
                     <span className="font-medium">Timed Mode</span>
                   </label>
@@ -130,7 +130,7 @@ export default function CreateTest() {
                 <label htmlFor="subject" className="block text-sm font-medium text-slate-700">Subject</label>
                 <select
                   id="subject"
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
                   value={config.subject}
                   onChange={(e) => setConfig({...config, subject: e.target.value})}
                 >
@@ -143,7 +143,7 @@ export default function CreateTest() {
                 <label htmlFor="system" className="block text-sm font-medium text-slate-700">System</label>
                 <select
                   id="system"
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
                   value={config.system}
                   onChange={(e) => setConfig({...config, system: e.target.value})}
                 >
@@ -156,7 +156,7 @@ export default function CreateTest() {
                 <label htmlFor="difficulty" className="block text-sm font-medium text-slate-700">Difficulty</label>
                 <select
                   id="difficulty"
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
                   value={config.difficulty}
                   onChange={(e) => setConfig({...config, difficulty: e.target.value})}
                 >
@@ -171,7 +171,7 @@ export default function CreateTest() {
                 <label htmlFor="count" className="block text-sm font-medium text-slate-700">Number of Questions</label>
                 <select
                   id="count"
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
                   value={config.count}
                   onChange={(e) => setConfig({...config, count: parseInt(e.target.value)})}
                 >
@@ -188,7 +188,7 @@ export default function CreateTest() {
               <button
                 onClick={startPractice}
                 disabled={loading}
-                className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-uw-blue hover:bg-uw-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uw-blue ${
                   loading ? 'opacity-75 cursor-not-allowed' : ''
                 }`}
               >

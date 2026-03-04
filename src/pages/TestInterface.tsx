@@ -207,20 +207,20 @@ export default function TestInterface() {
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
       {/* Top Navigation Bar */}
-      <div className="bg-[#1e3a8a] text-white flex items-center justify-between px-4 py-2 shadow-md z-10">
+      <div className="bg-uw-blue text-white flex items-center justify-between px-4 py-2 shadow-md z-10">
         <div className="flex items-center space-x-4">
-          <button onClick={() => setShowCalc(!showCalc)} className="flex items-center space-x-1 hover:text-indigo-200 text-sm font-medium">
+          <button onClick={() => setShowCalc(!showCalc)} className="flex items-center space-x-1 hover:text-blue-200 text-sm font-medium">
             <CalcIcon size={18} />
             <span className="hidden sm:inline">Calculator</span>
           </button>
-          <button onClick={() => setShowLabs(!showLabs)} className="flex items-center space-x-1 hover:text-indigo-200 text-sm font-medium">
+          <button onClick={() => setShowLabs(!showLabs)} className="flex items-center space-x-1 hover:text-blue-200 text-sm font-medium">
             <FlaskConical size={18} />
             <span className="hidden sm:inline">Lab Values</span>
           </button>
         </div>
         
         <div className="flex flex-col items-center">
-          <span className="text-xs text-indigo-200 uppercase tracking-wider font-semibold">
+          <span className="text-xs text-blue-200 uppercase tracking-wider font-semibold">
             {session.mode === 'tutor' ? 'Tutor Mode' : 'Timed Mode'}
           </span>
           <span className="text-lg font-mono font-bold">
@@ -229,18 +229,18 @@ export default function TestInterface() {
         </div>
         
         <div className="flex items-center space-x-2 sm:space-x-4">
-          <button onClick={toggleMark} className={`flex items-center space-x-1 text-sm font-medium ${marked.includes(currentQ.id) ? 'text-yellow-400' : 'hover:text-indigo-200'}`}>
+          <button onClick={toggleMark} className={`flex items-center space-x-1 text-sm font-medium ${marked.includes(currentQ.id) ? 'text-uw-amber' : 'hover:text-blue-200'}`}>
             <Flag size={18} fill={marked.includes(currentQ.id) ? "currentColor" : "none"} />
             <span className="hidden sm:inline">Mark</span>
           </button>
           <div className="flex space-x-1">
-            <button onClick={handlePrev} disabled={currentIndex === 0} className="p-1 hover:bg-indigo-800 rounded disabled:opacity-50">
+            <button onClick={handlePrev} disabled={currentIndex === 0} className="p-1 hover:bg-uw-blue-hover rounded disabled:opacity-50">
               <ChevronLeft size={24} />
             </button>
             <span className="px-2 py-1 text-sm font-medium">
               Item: {currentIndex + 1} of {session.questions.length}
             </span>
-            <button onClick={handleNext} disabled={currentIndex === session.questions.length - 1} className="p-1 hover:bg-indigo-800 rounded disabled:opacity-50">
+            <button onClick={handleNext} disabled={currentIndex === session.questions.length - 1} className="p-1 hover:bg-uw-blue-hover rounded disabled:opacity-50">
               <ChevronRight size={24} />
             </button>
           </div>
@@ -251,7 +251,7 @@ export default function TestInterface() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 overflow-y-auto p-6 sm:p-10 max-w-5xl mx-auto w-full">
           {/* Question Stem */}
-          <div className="text-lg text-slate-900 leading-relaxed mb-8 whitespace-pre-wrap">
+          <div className="text-lg text-uw-navy leading-relaxed mb-8 whitespace-pre-wrap">
             {currentQ.stem}
           </div>
 
@@ -272,16 +272,16 @@ export default function TestInterface() {
               if (showExplanation) {
                 choiceClass = "cursor-default";
                 if (isCorrect) {
-                  choiceClass = "bg-green-50 border-green-500";
-                  textClass = "text-green-900 font-medium";
-                  icon = <CheckCircle className="h-5 w-5 text-green-600 ml-auto" />;
+                  choiceClass = "bg-uw-green-bg border-uw-green";
+                  textClass = "text-uw-green font-medium";
+                  icon = <CheckCircle className="h-5 w-5 text-uw-green ml-auto" />;
                 } else if (isSelected) {
-                  choiceClass = "bg-red-50 border-red-500";
-                  textClass = "text-red-900 font-medium";
-                  icon = <XCircle className="h-5 w-5 text-red-600 ml-auto" />;
+                  choiceClass = "bg-uw-red-bg border-uw-red";
+                  textClass = "text-uw-red font-medium";
+                  icon = <XCircle className="h-5 w-5 text-uw-red ml-auto" />;
                 }
               } else if (isSelected) {
-                choiceClass = "bg-indigo-50 border-indigo-500";
+                choiceClass = "bg-blue-50 border-uw-blue";
               }
 
               if (isCrossedOut && !showExplanation) {
@@ -296,7 +296,7 @@ export default function TestInterface() {
                 >
                   <div className="flex items-center flex-1">
                     <div className={`flex-shrink-0 h-5 w-5 rounded-full border flex items-center justify-center mr-4 ${
-                      isSelected ? 'border-indigo-600 bg-indigo-600' : 'border-slate-400'
+                      isSelected ? 'border-uw-blue bg-uw-blue' : 'border-slate-400'
                     }`}>
                       {isSelected && <div className="h-2 w-2 rounded-full bg-white" />}
                     </div>
@@ -325,10 +325,10 @@ export default function TestInterface() {
 
           {/* Explanation Section */}
           {showExplanation && (
-            <div className="mt-8 border-t-2 border-slate-200 pt-8 animate-in fade-in duration-500">
-              <h3 className="text-xl font-bold text-slate-900 mb-4">Explanation</h3>
+            <div className="mt-8 border-t-2 border-slate-200 pt-8 animate-in fade-in duration-500 bg-uw-gray p-6 rounded-lg">
+              <h3 className="text-xl font-bold text-uw-navy mb-4">Explanation</h3>
               
-              <div className="prose max-w-none text-slate-800 mb-8">
+              <div className="prose max-w-none text-uw-navy mb-8">
                 <p className="whitespace-pre-wrap leading-relaxed">{currentQ.explanation}</p>
               </div>
 
@@ -342,10 +342,10 @@ export default function TestInterface() {
                   
                   return (
                     <div key={num} className="flex items-start">
-                      <span className={`font-bold mr-2 ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                      <span className={`font-bold mr-2 ${isCorrect ? 'text-uw-green' : 'text-uw-red'}`}>
                         Choice {String.fromCharCode(64 + num)}:
                       </span>
-                      <span className="text-slate-700">{choiceExp}</span>
+                      <span className="text-uw-navy">{choiceExp}</span>
                     </div>
                   );
                 })}
@@ -353,9 +353,9 @@ export default function TestInterface() {
 
               {/* Educational Objective */}
               {currentQ.educational_objective && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
-                  <h4 className="text-sm font-bold text-blue-900 uppercase tracking-wider mb-2">Educational Objective</h4>
-                  <p className="text-blue-900 font-medium">{currentQ.educational_objective}</p>
+                <div className="bg-white border border-slate-300 rounded-lg p-5 shadow-sm">
+                  <h4 className="text-sm font-bold text-uw-navy uppercase tracking-wider mb-2">Educational Objective</h4>
+                  <p className="text-uw-navy font-medium">{currentQ.educational_objective}</p>
                 </div>
               )}
             </div>
@@ -383,10 +383,10 @@ export default function TestInterface() {
             const isMarked = marked.includes(q.id);
             
             let bgClass = "bg-white border-slate-300 text-slate-600";
-            if (isCurrent) bgClass = "bg-indigo-600 border-indigo-600 text-white";
+            if (isCurrent) bgClass = "bg-uw-blue border-uw-blue text-white";
             else if (isReviewMode) {
-              if (answers[q.id] === q.correct_answer) bgClass = "bg-green-100 border-green-500 text-green-800";
-              else if (isAns) bgClass = "bg-red-100 border-red-500 text-red-800";
+              if (answers[q.id] === q.correct_answer) bgClass = "bg-uw-green-bg border-uw-green text-uw-green";
+              else if (isAns) bgClass = "bg-uw-red-bg border-uw-red text-uw-red";
             } else if (isAns) {
               bgClass = "bg-slate-300 border-slate-400 text-slate-800";
             }
@@ -400,7 +400,7 @@ export default function TestInterface() {
                 {idx + 1}
                 {isMarked && (
                   <div className="absolute -top-1 -right-1">
-                    <Flag size={10} className={isCurrent ? "text-yellow-300" : "text-yellow-500"} fill="currentColor" />
+                    <Flag size={10} className={isCurrent ? "text-uw-amber" : "text-uw-amber"} fill="currentColor" />
                   </div>
                 )}
               </button>
@@ -410,8 +410,8 @@ export default function TestInterface() {
         
         {isReviewMode && (
           <div className="flex items-center space-x-4 text-sm font-medium">
-            <span className="text-slate-700">Score: <span className="text-indigo-600 font-bold">{session.score}%</span></span>
-            <button onClick={() => navigate('/')} className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+            <span className="text-slate-700">Score: <span className="text-uw-blue font-bold">{session.score}%</span></span>
+            <button onClick={() => navigate('/')} className="px-4 py-2 bg-uw-blue text-white rounded hover:bg-uw-blue-hover">
               Exit Review
             </button>
           </div>

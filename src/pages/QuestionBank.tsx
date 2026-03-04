@@ -93,7 +93,7 @@ export default function QuestionBank() {
     <div className="max-w-7xl mx-auto">
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Question Bank</h1>
+          <h1 className="text-2xl font-bold text-uw-navy">Question Bank</h1>
           <p className="mt-1 text-sm text-slate-500">
             Manage and review your UPSC CMS questions.
           </p>
@@ -105,7 +105,7 @@ export default function QuestionBank() {
             </div>
             <input
               type="text"
-              className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-slate-300 rounded-md py-2 px-3 border"
+              className="focus:ring-uw-blue focus:border-uw-blue block w-full pl-10 sm:text-sm border-slate-300 rounded-md py-2 px-3 border"
               placeholder="Search questions..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -120,7 +120,7 @@ export default function QuestionBank() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <select
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
             value={subjectFilter}
             onChange={(e) => setSubjectFilter(e.target.value)}
           >
@@ -129,7 +129,7 @@ export default function QuestionBank() {
           </select>
 
           <select
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
             value={systemFilter}
             onChange={(e) => setSystemFilter(e.target.value)}
           >
@@ -138,7 +138,7 @@ export default function QuestionBank() {
           </select>
 
           <select
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(e.target.value)}
           >
@@ -149,7 +149,7 @@ export default function QuestionBank() {
           </select>
 
           <select
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
             value={yearFilter}
             onChange={(e) => setYearFilter(e.target.value)}
           >
@@ -161,12 +161,12 @@ export default function QuestionBank() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uw-blue"></div>
         </div>
       ) : filteredQuestions.length === 0 ? (
         <div className="text-center py-12 bg-white shadow rounded-lg border border-slate-200">
           <Database className="mx-auto h-12 w-12 text-slate-400" />
-          <h3 className="mt-2 text-sm font-medium text-slate-900">No questions found</h3>
+          <h3 className="mt-2 text-sm font-medium text-uw-navy">No questions found</h3>
           <p className="mt-1 text-sm text-slate-500">
             Try adjusting your filters or search term, or upload a new CSV.
           </p>
@@ -182,7 +182,7 @@ export default function QuestionBank() {
                 <div className="flex justify-between items-start">
                   <div className="flex-1 pr-4">
                     <div className="flex flex-wrap gap-2 mb-2">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-uw-navy">
                         {q.subject}
                       </span>
                       {q.system && (

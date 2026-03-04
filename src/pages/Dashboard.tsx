@@ -70,16 +70,16 @@ export default function Dashboard() {
   }, [user]);
 
   const statCards = [
-    { name: 'Total Questions', value: stats.totalQuestions, icon: Database, color: 'bg-blue-500' },
-    { name: 'Subjects Covered', value: stats.subjects, icon: BrainCircuit, color: 'bg-indigo-500' },
-    { name: 'Systems Covered', value: stats.systems, icon: Clock, color: 'bg-purple-500' },
-    { name: 'Recent Uploads (7d)', value: stats.recentUploads, icon: Upload, color: 'bg-emerald-500' },
+    { name: 'Total Questions', value: stats.totalQuestions, icon: Database, color: 'bg-uw-blue' },
+    { name: 'Subjects Covered', value: stats.subjects, icon: BrainCircuit, color: 'bg-[#0D47A1]' },
+    { name: 'Systems Covered', value: stats.systems, icon: Clock, color: 'bg-[#0A192F]' },
+    { name: 'Recent Uploads (7d)', value: stats.recentUploads, icon: Upload, color: 'bg-uw-green' },
   ];
 
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-uw-navy">Dashboard</h1>
         <p className="mt-1 text-sm text-slate-500">
           Welcome back! Here's an overview of your question bank and recent activity.
         </p>
@@ -116,7 +116,7 @@ export default function Dashboard() {
                     <dl>
                       <dt className="text-sm font-medium text-slate-500 truncate">{item.name}</dt>
                       <dd>
-                        <div className="text-2xl font-semibold text-slate-900">{item.value}</div>
+                        <div className="text-2xl font-semibold text-uw-navy">{item.value}</div>
                       </dd>
                     </dl>
                   </div>
@@ -129,11 +129,11 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="bg-white shadow rounded-lg border border-slate-100 p-6">
-          <h2 className="text-lg font-medium text-slate-900 mb-4">Quick Actions</h2>
+          <h2 className="text-lg font-medium text-uw-navy mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Link
               to="/test/create"
-              className="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm"
+              className="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-uw-blue hover:bg-uw-blue-hover shadow-sm"
             >
               <BrainCircuit className="mr-2 h-5 w-5" />
               Create Test
@@ -149,11 +149,11 @@ export default function Dashboard() {
         </div>
         
         <div className="bg-white shadow rounded-lg border border-slate-100 p-6">
-          <h2 className="text-lg font-medium text-slate-900 mb-4">Recent Tests</h2>
+          <h2 className="text-lg font-medium text-uw-navy mb-4">Recent Tests</h2>
           {recentTests.length === 0 ? (
             <div className="text-center py-6">
               <p className="text-sm text-slate-500">No recent tests found.</p>
-              <Link to="/test/create" className="mt-2 inline-block text-sm text-indigo-600 hover:text-indigo-500 font-medium">
+              <Link to="/test/create" className="mt-2 inline-block text-sm text-uw-blue hover:text-uw-blue-hover font-medium">
                 Start your first test &rarr;
               </Link>
             </div>
@@ -167,12 +167,12 @@ export default function Dashboard() {
                 >
                   <div className="flex items-center">
                     {test.status === 'completed' ? (
-                      <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                      <CheckCircle className="h-5 w-5 text-uw-green mr-3" />
                     ) : (
-                      <PlayCircle className="h-5 w-5 text-indigo-500 mr-3" />
+                      <PlayCircle className="h-5 w-5 text-uw-blue mr-3" />
                     )}
                     <div>
-                      <p className="text-sm font-medium text-slate-900">
+                      <p className="text-sm font-medium text-uw-navy">
                         {test.mode === 'tutor' ? 'Tutor Mode' : 'Timed Mode'} - {test.questions.length} Qs
                       </p>
                       <p className="text-xs text-slate-500">
@@ -182,11 +182,11 @@ export default function Dashboard() {
                   </div>
                   <div>
                     {test.status === 'completed' ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-uw-green-bg text-uw-green">
                         {test.score}%
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-uw-amber">
                         In Progress
                       </span>
                     )}
