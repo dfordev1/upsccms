@@ -10,7 +10,8 @@ import {
   Menu,
   X,
   PieChart,
-  Layers
+  Layers,
+  Activity
 } from 'lucide-react';
 
 export default function Layout() {
@@ -24,6 +25,7 @@ export default function Layout() {
     { name: 'Upload CSV', href: '/upload', icon: Upload },
     { name: 'Create Test', href: '/test/create', icon: BrainCircuit },
     { name: 'Analytics', href: '/analytics', icon: PieChart },
+    { name: 'PYQ Analysis', href: '/pyq-analysis', icon: Activity },
     { name: 'Flashcards', href: '/flashcards', icon: Layers },
   ];
 

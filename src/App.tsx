@@ -12,6 +12,7 @@ import CreateTest from './pages/CreateTest';
 import TestInterface from './pages/TestInterface';
 import Analytics from './pages/Analytics';
 import Flashcards from './pages/Flashcards';
+import PYQAnalysis from './pages/PYQAnalysis';
 import Layout from './components/Layout';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="test/create" element={<CreateTest />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="flashcards" element={<Flashcards />} />
+            <Route path="pyq-analysis" element={<PYQAnalysis />} />
           </Route>
         </Routes>
       </Router>
