@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../lib/AuthContext';
-import { Database, BrainCircuit, Upload, Clock } from 'lucide-react';
+import { Database, BrainCircuit, Upload, Clock, PlayCircle, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { TestSession } from '../types';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -13,20 +14,20 @@ export default function Dashboard() {
     systems: 0,
     recentUploads: 0
   });
+  const [recentTests, setRecentTests] = useState<TestSession[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchStats() {
+    async function fetchData() {
       if (!user) return;
 
       try {
+        // Fetch Questions Stats
         const q = query(collection(db, 'questions'), where('user_id', '==', user.uid));
         const querySnapshot = await getDocs(q);
         
         const questions = querySnapshot.docs.map(doc => doc.data());
-        
         const totalCount = questions.length;
-        
         const uniqueSubjects = new Set(questions.map(q => q.subject).filter(Boolean)).size;
         const uniqueSystems = new Set(questions.map(q => q.system).filter(Boolean)).size;
         
@@ -45,14 +46,27 @@ export default function Dashboard() {
           systems: uniqueSystems,
           recentUploads: recentCount
         });
+
+        // Fetch Recent Tests
+        const testsQuery = query(
+          collection(db, 'test_sessions'), 
+          where('user_id', '==', user.uid)
+        );
+        const testsSnapshot = await getDocs(testsQuery);
+        let tests = testsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TestSession));
+        
+        // Sort manually since we can't easily combine where and orderBy without composite indexes
+        tests.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        setRecentTests(tests.slice(0, 5));
+
       } catch (error) {
-        console.error('Error fetching stats:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchStats();
+    fetchData();
   }, [user]);
 
   const statCards = [
@@ -67,7 +81,7 @@ export default function Dashboard() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Welcome back! Here's an overview of your question bank.
+          Welcome back! Here's an overview of your question bank and recent activity.
         </p>
       </div>
 
@@ -118,11 +132,11 @@ export default function Dashboard() {
           <h2 className="text-lg font-medium text-slate-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Link
-              to="/practice"
+              to="/test/create"
               className="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm"
             >
               <BrainCircuit className="mr-2 h-5 w-5" />
-              Start Practice
+              Create Test
             </Link>
             <Link
               to="/upload"
@@ -135,21 +149,52 @@ export default function Dashboard() {
         </div>
         
         <div className="bg-white shadow rounded-lg border border-slate-100 p-6">
-          <h2 className="text-lg font-medium text-slate-900 mb-4">Getting Started</h2>
-          <ul className="space-y-3 text-sm text-slate-600">
-            <li className="flex items-start">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 mr-3 flex-shrink-0 font-medium text-xs">1</span>
-              <span>Go to the <strong>Upload CSV</strong> page to add questions to your bank.</span>
-            </li>
-            <li className="flex items-start">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 mr-3 flex-shrink-0 font-medium text-xs">2</span>
-              <span>Browse and manage your questions in the <strong>Question Bank</strong>.</span>
-            </li>
-            <li className="flex items-start">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 mr-3 flex-shrink-0 font-medium text-xs">3</span>
-              <span>Test your knowledge in <strong>Practice Mode</strong> with custom filters.</span>
-            </li>
-          </ul>
+          <h2 className="text-lg font-medium text-slate-900 mb-4">Recent Tests</h2>
+          {recentTests.length === 0 ? (
+            <div className="text-center py-6">
+              <p className="text-sm text-slate-500">No recent tests found.</p>
+              <Link to="/test/create" className="mt-2 inline-block text-sm text-indigo-600 hover:text-indigo-500 font-medium">
+                Start your first test &rarr;
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentTests.map(test => (
+                <Link 
+                  key={test.id} 
+                  to={`/test/${test.id}`}
+                  className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex items-center">
+                    {test.status === 'completed' ? (
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    ) : (
+                      <PlayCircle className="h-5 w-5 text-indigo-500 mr-3" />
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">
+                        {test.mode === 'tutor' ? 'Tutor Mode' : 'Timed Mode'} - {test.questions.length} Qs
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {new Date(test.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    {test.status === 'completed' ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        {test.score}%
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        In Progress
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

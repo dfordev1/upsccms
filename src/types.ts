@@ -25,3 +25,19 @@ export interface Question {
 }
 
 export type QuestionInsert = Omit<Question, 'id' | 'created_at' | 'user_id'>;
+
+export interface TestSession {
+  id: string;
+  user_id: string;
+  mode: 'tutor' | 'timed';
+  status: 'in-progress' | 'completed';
+  questions: Question[];
+  answers: Record<string, number>;
+  marked: string[];
+  crossed_out: Record<string, number[]>;
+  time_spent: Record<string, number>;
+  created_at: string;
+  completed_at?: string;
+  score?: number;
+  total_time?: number;
+}

@@ -20,7 +20,7 @@ export default function Layout() {
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'Question Bank', href: '/questions', icon: Database },
     { name: 'Upload CSV', href: '/upload', icon: Upload },
-    { name: 'Practice Mode', href: '/practice', icon: BrainCircuit },
+    { name: 'Create Test', href: '/test/create', icon: BrainCircuit },
   ];
 
   return (

@@ -8,7 +8,8 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import QuestionBank from './pages/QuestionBank';
 import UploadCSV from './pages/UploadCSV';
-import PracticeMode from './pages/PracticeMode';
+import CreateTest from './pages/CreateTest';
+import TestInterface from './pages/TestInterface';
 import Layout from './components/Layout';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -33,11 +34,15 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
+          {/* Full screen test interface */}
+          <Route path="/test/:id" element={<ProtectedRoute><TestInterface /></ProtectedRoute>} />
+
+          {/* Layout wrapped routes */}
           <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="questions" element={<QuestionBank />} />
             <Route path="upload" element={<UploadCSV />} />
-            <Route path="practice" element={<PracticeMode />} />
+            <Route path="test/create" element={<CreateTest />} />
           </Route>
         </Routes>
       </Router>
