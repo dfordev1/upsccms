@@ -75,7 +75,7 @@ export default function LabValues({ onClose }: { onClose: () => void }) {
             <tbody className="bg-white divide-y divide-slate-200">
               {labData[activeTab].map((item, idx) => (
                 <tr key={idx} className="hover:bg-slate-50">
-                  <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-slate-900">
+                  <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-uw-navy">
                     {item.test}
                   </td>
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-slate-600">

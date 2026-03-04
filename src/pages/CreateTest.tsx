@@ -17,6 +17,7 @@ export default function CreateTest() {
     subject: '',
     system: '',
     difficulty: '',
+    status: 'all' as 'all' | 'unused' | 'incorrect' | 'correct' | 'marked',
     count: 10
   });
 
@@ -31,7 +32,8 @@ export default function CreateTest() {
   const fetchOptions = async () => {
     if (!user) return;
     try {
-      const q = query(collection(db, 'questions'), where('user_id', '==', user.uid));
+      // Fetch all questions to make them available to all users
+      const q = query(collection(db, 'questions'));
       const querySnapshot = await getDocs(q);
       const data = querySnapshot.docs.map(doc => doc.data() as Question);
       
@@ -49,14 +51,54 @@ export default function CreateTest() {
     setLoading(true);
 
     try {
-      let q = query(collection(db, 'questions'), where('user_id', '==', user.uid));
+      // Fetch all questions
+      let q = query(collection(db, 'questions'));
 
       if (config.subject) q = query(q, where('subject', '==', config.subject));
       if (config.system) q = query(q, where('system', '==', config.system));
       if (config.difficulty) q = query(q, where('difficulty', '==', config.difficulty));
 
       const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Question));
+      let data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Question));
+
+      // Fetch user sessions to determine question status
+      const sessionsQuery = query(collection(db, 'test_sessions'), where('user_id', '==', user.uid));
+      const sessionsSnapshot = await getDocs(sessionsQuery);
+      const sessions = sessionsSnapshot.docs.map(doc => doc.data() as TestSession)
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+      const answered = new Set<string>();
+      const correct = new Set<string>();
+      const incorrect = new Set<string>();
+      const marked = new Set<string>();
+
+      sessions.forEach(session => {
+        session.marked?.forEach(id => marked.add(id));
+        Object.entries(session.answers || {}).forEach(([qId, answer]) => {
+          answered.add(qId);
+          const question = session.questions?.find(q => q.id === qId);
+          if (question) {
+            if (question.correct_answer === answer) {
+              correct.add(qId);
+              incorrect.delete(qId); // If they got it right later, remove from incorrect
+            } else {
+              incorrect.add(qId);
+              correct.delete(qId); // If they got it wrong later, remove from correct
+            }
+          }
+        });
+      });
+
+      // Apply status filter
+      if (config.status === 'unused') {
+        data = data.filter(q => !answered.has(q.id));
+      } else if (config.status === 'incorrect') {
+        data = data.filter(q => incorrect.has(q.id));
+      } else if (config.status === 'correct') {
+        data = data.filter(q => correct.has(q.id));
+      } else if (config.status === 'marked') {
+        data = data.filter(q => marked.has(q.id));
+      }
 
       if (data && data.length > 0) {
         // Shuffle and take requested count
@@ -164,6 +206,22 @@ export default function CreateTest() {
                   <option value="easy">Easy</option>
                   <option value="medium">Medium</option>
                   <option value="hard">Hard</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="status" className="block text-sm font-medium text-slate-700">Question Status</label>
+                <select
+                  id="status"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+                  value={config.status}
+                  onChange={(e) => setConfig({...config, status: e.target.value as any})}
+                >
+                  <option value="all">All Questions</option>
+                  <option value="unused">Unused</option>
+                  <option value="incorrect">Incorrect</option>
+                  <option value="correct">Correct</option>
+                  <option value="marked">Marked</option>
                 </select>
               </div>
 

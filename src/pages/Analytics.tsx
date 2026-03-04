@@ -27,7 +27,7 @@ export default function Analytics() {
 
       try {
         // 1. Fetch all questions to know the total bank size
-        const qQuery = query(collection(db, 'questions'), where('user_id', '==', user.uid));
+        const qQuery = query(collection(db, 'questions'));
         const qSnap = await getDocs(qQuery);
         const allQuestions = qSnap.docs.map(d => d.data() as Question);
         const totalBankSize = allQuestions.length;

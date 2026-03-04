@@ -11,6 +11,7 @@ import UploadCSV from './pages/UploadCSV';
 import CreateTest from './pages/CreateTest';
 import TestInterface from './pages/TestInterface';
 import Analytics from './pages/Analytics';
+import Flashcards from './pages/Flashcards';
 import Layout from './components/Layout';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="upload" element={<UploadCSV />} />
             <Route path="test/create" element={<CreateTest />} />
             <Route path="analytics" element={<Analytics />} />
+            <Route path="flashcards" element={<Flashcards />} />
           </Route>
         </Routes>
       </Router>

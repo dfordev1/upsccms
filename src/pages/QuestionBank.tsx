@@ -32,7 +32,8 @@ export default function QuestionBank() {
     setLoading(true);
 
     try {
-      let q = query(collection(db, 'questions'), where('user_id', '==', user.uid));
+      // Fetch all questions to make them available to all users
+      let q = query(collection(db, 'questions'));
 
       if (subjectFilter) q = query(q, where('subject', '==', subjectFilter));
       if (systemFilter) q = query(q, where('system', '==', systemFilter));
@@ -203,7 +204,7 @@ export default function QuestionBank() {
                         </span>
                       )}
                     </div>
-                    <h3 className="text-base font-medium text-slate-900 leading-relaxed">
+                    <h3 className="text-base font-medium text-uw-navy leading-relaxed">
                       {q.stem}
                     </h3>
                   </div>

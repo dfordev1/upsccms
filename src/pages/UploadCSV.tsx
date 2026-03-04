@@ -183,8 +183,8 @@ export default function UploadCSV() {
           {file && (
             <div className="mt-4 flex items-center justify-between p-4 bg-slate-50 rounded-md border border-slate-200">
               <div className="flex items-center">
-                <FileText className="h-6 w-6 text-indigo-500 mr-3" />
-                <span className="text-sm font-medium text-slate-900">{file.name}</span>
+                <FileText className="h-6 w-6 text-uw-blue mr-3" />
+                <span className="text-sm font-medium text-uw-navy">{file.name}</span>
                 <span className="ml-2 text-xs text-slate-500">
                   ({(file.size / 1024).toFixed(2)} KB)
                 </span>
@@ -201,7 +201,7 @@ export default function UploadCSV() {
 
           {loading && (
             <div className="mt-6">
-              <div className="flex justify-between text-sm font-medium text-slate-900 mb-1">
+              <div className="flex justify-between text-sm font-medium text-uw-navy mb-1">
                 <span>Uploading...</span>
                 <span>{progress}%</span>
               </div>
@@ -218,7 +218,7 @@ export default function UploadCSV() {
             <button
               onClick={handleUpload}
               disabled={!file || loading}
-              className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-uw-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+              className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-uw-blue hover:bg-uw-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uw-blue ${
                 (!file || loading) ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
@@ -239,7 +239,7 @@ export default function UploadCSV() {
       </div>
 
       <div className="mt-8 bg-white shadow rounded-lg border border-slate-200 p-6">
-        <h2 className="text-lg font-medium text-slate-900 mb-4">CSV Format Requirements</h2>
+        <h2 className="text-lg font-medium text-uw-navy mb-4">CSV Format Requirements</h2>
         <p className="text-sm text-slate-600 mb-4">
           Your CSV file must include the following headers exactly as written:
         </p>

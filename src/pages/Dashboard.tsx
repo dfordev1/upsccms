@@ -23,7 +23,7 @@ export default function Dashboard() {
 
       try {
         // Fetch Questions Stats
-        const q = query(collection(db, 'questions'), where('user_id', '==', user.uid));
+        const q = query(collection(db, 'questions'));
         const querySnapshot = await getDocs(q);
         
         const questions = querySnapshot.docs.map(doc => doc.data());
