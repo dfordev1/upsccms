@@ -8,7 +8,8 @@ import {
   BrainCircuit, 
   LogOut,
   Menu,
-  X
+  X,
+  PieChart
 } from 'lucide-react';
 
 export default function Layout() {
@@ -21,6 +22,7 @@ export default function Layout() {
     { name: 'Question Bank', href: '/questions', icon: Database },
     { name: 'Upload CSV', href: '/upload', icon: Upload },
     { name: 'Create Test', href: '/test/create', icon: BrainCircuit },
+    { name: 'Analytics', href: '/analytics', icon: PieChart },
   ];
 
   return (
