@@ -53,35 +53,39 @@ export default function PYQAnalysis() {
 
     questions.forEach(q => {
       const year = q.exam_year || 0;
+      const subject = q.subject || 'Uncategorized Subject';
+      const system = q.system || 'Uncategorized System';
+      const topic = q.topic || 'Uncategorized Topic';
+      const subtopic = q.subtopic || '';
       
       // Subject Level
-      if (!root[q.subject]) {
-        root[q.subject] = { name: q.subject, level: 'subject', count: 0, yearDistribution: {}, children: {} };
+      if (!root[subject]) {
+        root[subject] = { name: subject, level: 'subject', count: 0, yearDistribution: {}, children: {} };
       }
-      root[q.subject].count++;
-      root[q.subject].yearDistribution[year] = (root[q.subject].yearDistribution[year] || 0) + 1;
+      root[subject].count++;
+      root[subject].yearDistribution[year] = (root[subject].yearDistribution[year] || 0) + 1;
 
       // System Level
-      if (!root[q.subject].children[q.system]) {
-        root[q.subject].children[q.system] = { name: q.system, level: 'system', count: 0, yearDistribution: {}, children: {} };
+      if (!root[subject].children[system]) {
+        root[subject].children[system] = { name: system, level: 'system', count: 0, yearDistribution: {}, children: {} };
       }
-      root[q.subject].children[q.system].count++;
-      root[q.subject].children[q.system].yearDistribution[year] = (root[q.subject].children[q.system].yearDistribution[year] || 0) + 1;
+      root[subject].children[system].count++;
+      root[subject].children[system].yearDistribution[year] = (root[subject].children[system].yearDistribution[year] || 0) + 1;
 
       // Topic Level
-      if (!root[q.subject].children[q.system].children[q.topic]) {
-        root[q.subject].children[q.system].children[q.topic] = { name: q.topic, level: 'topic', count: 0, yearDistribution: {}, children: {} };
+      if (!root[subject].children[system].children[topic]) {
+        root[subject].children[system].children[topic] = { name: topic, level: 'topic', count: 0, yearDistribution: {}, children: {} };
       }
-      root[q.subject].children[q.system].children[q.topic].count++;
-      root[q.subject].children[q.system].children[q.topic].yearDistribution[year] = (root[q.subject].children[q.system].children[q.topic].yearDistribution[year] || 0) + 1;
+      root[subject].children[system].children[topic].count++;
+      root[subject].children[system].children[topic].yearDistribution[year] = (root[subject].children[system].children[topic].yearDistribution[year] || 0) + 1;
 
       // Subtopic Level
-      if (q.subtopic) {
-        if (!root[q.subject].children[q.system].children[q.topic].children[q.subtopic]) {
-          root[q.subject].children[q.system].children[q.topic].children[q.subtopic] = { name: q.subtopic, level: 'subtopic', count: 0, yearDistribution: {}, children: {} };
+      if (subtopic) {
+        if (!root[subject].children[system].children[topic].children[subtopic]) {
+          root[subject].children[system].children[topic].children[subtopic] = { name: subtopic, level: 'subtopic', count: 0, yearDistribution: {}, children: {} };
         }
-        root[q.subject].children[q.system].children[q.topic].children[q.subtopic].count++;
-        root[q.subject].children[q.system].children[q.topic].children[q.subtopic].yearDistribution[year] = (root[q.subject].children[q.system].children[q.topic].children[q.subtopic].yearDistribution[year] || 0) + 1;
+        root[subject].children[system].children[topic].children[subtopic].count++;
+        root[subject].children[system].children[topic].children[subtopic].yearDistribution[year] = (root[subject].children[system].children[topic].children[subtopic].yearDistribution[year] || 0) + 1;
       }
     });
 

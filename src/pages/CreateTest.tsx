@@ -17,6 +17,7 @@ export default function CreateTest() {
     subject: '',
     system: '',
     difficulty: '',
+    year: '',
     status: 'all' as 'all' | 'unused' | 'incorrect' | 'correct' | 'marked',
     count: 10
   });
@@ -24,6 +25,7 @@ export default function CreateTest() {
   // Options
   const [subjects, setSubjects] = useState<string[]>([]);
   const [systems, setSystems] = useState<string[]>([]);
+  const [years, setYears] = useState<number[]>([]);
 
   useEffect(() => {
     fetchOptions();
@@ -40,6 +42,7 @@ export default function CreateTest() {
       if (data.length > 0) {
         setSubjects(Array.from(new Set(data.map(q => q.subject).filter(Boolean))));
         setSystems(Array.from(new Set(data.map(q => q.system).filter(Boolean))));
+        setYears(Array.from(new Set(data.map(q => q.exam_year).filter(Boolean))).sort((a, b) => b - a));
       }
     } catch (error) {
       console.error('Error fetching options:', error);
@@ -57,6 +60,7 @@ export default function CreateTest() {
       if (config.subject) q = query(q, where('subject', '==', config.subject));
       if (config.system) q = query(q, where('system', '==', config.system));
       if (config.difficulty) q = query(q, where('difficulty', '==', config.difficulty));
+      if (config.year) q = query(q, where('exam_year', '==', parseInt(config.year)));
 
       const querySnapshot = await getDocs(q);
       let data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Question));
@@ -206,6 +210,19 @@ export default function CreateTest() {
                   <option value="easy">Easy</option>
                   <option value="medium">Medium</option>
                   <option value="hard">Hard</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="year" className="block text-sm font-medium text-slate-700">Exam Year</label>
+                <select
+                  id="year"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+                  value={config.year}
+                  onChange={(e) => setConfig({...config, year: e.target.value})}
+                >
+                  <option value="">Any Year</option>
+                  {years.map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
               </div>
 
