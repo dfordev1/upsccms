@@ -115,7 +115,7 @@ export default function TestHistory() {
                       <div className="ml-4 flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <p className="text-sm font-medium text-uw-navy truncate">
-                            {session.mode === 'tutor' ? 'Tutor Mode' : 'Timed Mode'} Block
+                            {session.mode === 'tutor' ? 'Tutor Mode' : session.mode === 'auto' ? 'Auto Solver' : 'Timed Mode'} Block
                           </p>
                           <div className="ml-2 flex-shrink-0 flex">
                             {isCompleted ? (

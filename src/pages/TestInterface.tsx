@@ -15,7 +15,8 @@ import {
   Strikethrough,
   CheckCircle,
   XCircle,
-  Check
+  Check,
+  Play
 } from 'lucide-react';
 import Calculator from '../components/Calculator';
 import LabValues from '../components/LabValues';
@@ -35,6 +36,13 @@ export default function TestInterface() {
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isReviewMode, setIsReviewMode] = useState(false); // True when block is ended or viewing explanation in tutor mode
   
+  // Auto mode state
+  const [autoState, setAutoState] = useState<'question' | 'explanation'>('question');
+  const [autoTimeRemaining, setAutoTimeRemaining] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [autoQuestionTime, setAutoQuestionTime] = useState(10);
+  const [autoAnswerTime, setAutoAnswerTime] = useState(15);
+
   // Local state for fast updates (synced to Firestore periodically or on unmount)
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [marked, setMarked] = useState<string[]>([]);
@@ -64,6 +72,12 @@ export default function TestInterface() {
             // Set timer based on mode and total time (e.g. 1 min per question)
             const totalSeconds = data.questions.length * 60;
             setTimeRemaining(totalSeconds);
+            
+            if (data.mode === 'auto') {
+              setAutoQuestionTime(data.auto_question_time || 10);
+              setAutoAnswerTime(data.auto_answer_time || 15);
+              setAutoTimeRemaining(data.auto_question_time || 10);
+            }
           }
         } else {
           navigate('/');
@@ -86,7 +100,9 @@ export default function TestInterface() {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          handleEndBlock();
+          if (session.mode !== 'auto') {
+            handleEndBlock();
+          }
           return 0;
         }
         return prev - 1;
@@ -95,6 +111,36 @@ export default function TestInterface() {
     
     return () => clearInterval(timer);
   }, [loading, isReviewMode, session]);
+
+  // Auto mode timer effect
+  useEffect(() => {
+    if (loading || isReviewMode || !session || session.status === 'completed' || session.mode !== 'auto' || !isAutoPlaying) return;
+
+    const autoTimer = setInterval(() => {
+      setAutoTimeRemaining((prev) => {
+        if (prev <= 1) {
+          // Time is up for current state
+          if (autoState === 'question') {
+            setAutoState('explanation');
+            return autoAnswerTime;
+          } else {
+            // Move to next question or end block
+            if (currentIndex < session.questions.length - 1) {
+              setCurrentIndex(c => c + 1);
+              setAutoState('question');
+              return autoQuestionTime;
+            } else {
+              handleEndBlock();
+              return 0;
+            }
+          }
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(autoTimer);
+  }, [loading, isReviewMode, session, isAutoPlaying, autoState, currentIndex, autoQuestionTime, autoAnswerTime]);
 
   const saveProgress = async (updates: Partial<TestSession>) => {
     if (!id || !session) return;
@@ -150,12 +196,20 @@ export default function TestInterface() {
     if (!session) return;
     if (currentIndex < session.questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
+      if (session.mode === 'auto') {
+        setAutoState('question');
+        setAutoTimeRemaining(autoQuestionTime);
+      }
     }
   };
 
   const handlePrev = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
+      if (session.mode === 'auto') {
+        setAutoState('question');
+        setAutoTimeRemaining(autoQuestionTime);
+      }
     }
   };
 
@@ -202,7 +256,7 @@ export default function TestInterface() {
 
   const currentQ = session.questions[currentIndex];
   const isAnswered = !!answers[currentQ.id];
-  const showExplanation = isReviewMode || (session.mode === 'tutor' && isAnswered);
+  const showExplanation = isReviewMode || (session.mode === 'tutor' && isAnswered) || (session.mode === 'auto' && autoState === 'explanation');
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
@@ -221,10 +275,17 @@ export default function TestInterface() {
         
         <div className="flex flex-col items-center">
           <span className="text-xs text-blue-200 uppercase tracking-wider font-semibold">
-            {session.mode === 'tutor' ? 'Tutor Mode' : 'Timed Mode'}
+            {session.mode === 'tutor' ? 'Tutor Mode' : session.mode === 'auto' ? 'Auto Solver' : 'Timed Mode'}
           </span>
           <span className="text-lg font-mono font-bold">
-            Block Time Remaining: {formatTime(timeRemaining)}
+            {session.mode === 'auto' && !isReviewMode ? (
+              <>
+                {autoState === 'question' ? 'Question Time: ' : 'Explanation Time: '}
+                {formatTime(autoTimeRemaining)}
+              </>
+            ) : (
+              <>Block Time Remaining: {formatTime(timeRemaining)}</>
+            )}
           </span>
         </div>
         
@@ -275,7 +336,7 @@ export default function TestInterface() {
                   choiceClass = "bg-uw-green-bg border-uw-green";
                   textClass = "text-uw-green font-medium";
                   icon = <CheckCircle className="h-5 w-5 text-uw-green ml-auto" />;
-                } else if (isSelected) {
+                } else if (isSelected && session.mode !== 'auto') {
                   choiceClass = "bg-uw-red-bg border-uw-red";
                   textClass = "text-uw-red font-medium";
                   icon = <XCircle className="h-5 w-5 text-uw-red ml-auto" />;
@@ -369,6 +430,42 @@ export default function TestInterface() {
           <button onClick={handleSuspend} className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded hover:bg-slate-50">
             <Pause size={16} className="mr-2" /> Suspend
           </button>
+          {session.mode === 'auto' && !isReviewMode && (
+            <button 
+              onClick={() => setIsAutoPlaying(!isAutoPlaying)} 
+              className={`flex items-center px-4 py-2 text-sm font-medium text-white rounded ${isAutoPlaying ? 'bg-uw-amber hover:bg-yellow-600' : 'bg-uw-green hover:bg-green-700'}`}
+            >
+              {isAutoPlaying ? <Pause size={16} className="mr-2" /> : <Play size={16} className="mr-2" />}
+              {isAutoPlaying ? 'Pause Auto' : 'Resume Auto'}
+            </button>
+          )}
+          {session.mode === 'auto' && !isReviewMode && (
+            <div className="flex items-center space-x-2 bg-white px-3 py-1.5 rounded border border-slate-300">
+              <div className="flex items-center space-x-1">
+                <label className="text-xs text-slate-500 font-medium">Q Timer:</label>
+                <input 
+                  type="number" 
+                  min="1" 
+                  value={autoQuestionTime} 
+                  onChange={(e) => setAutoQuestionTime(Math.max(1, parseInt(e.target.value) || 10))}
+                  className="w-12 text-sm border border-slate-200 rounded px-1 py-0.5 focus:outline-none focus:border-uw-blue"
+                />
+                <span className="text-xs text-slate-500">s</span>
+              </div>
+              <div className="w-px h-4 bg-slate-300 mx-1"></div>
+              <div className="flex items-center space-x-1">
+                <label className="text-xs text-slate-500 font-medium">A Timer:</label>
+                <input 
+                  type="number" 
+                  min="1" 
+                  value={autoAnswerTime} 
+                  onChange={(e) => setAutoAnswerTime(Math.max(1, parseInt(e.target.value) || 15))}
+                  className="w-12 text-sm border border-slate-200 rounded px-1 py-0.5 focus:outline-none focus:border-uw-blue"
+                />
+                <span className="text-xs text-slate-500">s</span>
+              </div>
+            </div>
+          )}
           {!isReviewMode && (
             <button onClick={handleEndBlock} className="flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded hover:bg-red-700">
               <Square size={16} className="mr-2" /> End Block

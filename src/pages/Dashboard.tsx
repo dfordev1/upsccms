@@ -178,7 +178,7 @@ export default function Dashboard() {
                     )}
                     <div>
                       <p className="text-sm font-medium text-uw-navy">
-                        {test.mode === 'tutor' ? 'Tutor Mode' : 'Timed Mode'} - {test.questions.length} Qs
+                        {test.mode === 'tutor' ? 'Tutor Mode' : test.mode === 'auto' ? 'Auto Solver' : 'Timed Mode'} - {test.questions.length} Qs
                       </p>
                       <p className="text-xs text-slate-500">
                         {new Date(test.created_at).toLocaleDateString()}

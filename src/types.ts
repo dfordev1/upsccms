@@ -29,7 +29,7 @@ export type QuestionInsert = Omit<Question, 'id' | 'created_at' | 'user_id'>;
 export interface TestSession {
   id: string;
   user_id: string;
-  mode: 'tutor' | 'timed';
+  mode: 'tutor' | 'timed' | 'auto';
   status: 'in-progress' | 'completed';
   questions: Question[];
   answers: Record<string, number>;
@@ -40,4 +40,6 @@ export interface TestSession {
   completed_at?: string;
   score?: number;
   total_time?: number;
+  auto_question_time?: number;
+  auto_answer_time?: number;
 }

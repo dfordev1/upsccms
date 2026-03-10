@@ -13,13 +13,15 @@ export default function CreateTest() {
   
   // Configuration State
   const [config, setConfig] = useState({
-    mode: 'tutor' as 'tutor' | 'timed',
+    mode: 'tutor' as 'tutor' | 'timed' | 'auto',
     subject: '',
     system: '',
     difficulty: '',
     year: '',
     status: 'all' as 'all' | 'unused' | 'incorrect' | 'correct' | 'marked',
-    count: 10
+    count: 10,
+    autoQuestionTime: 10,
+    autoAnswerTime: 15
   });
 
   // Options
@@ -120,6 +122,10 @@ export default function CreateTest() {
           crossed_out: {},
           time_spent: {},
           created_at: new Date().toISOString(),
+          ...(config.mode === 'auto' ? {
+            auto_question_time: config.autoQuestionTime,
+            auto_answer_time: config.autoAnswerTime
+          } : {})
         };
 
         const docRef = await addDoc(collection(db, 'test_sessions'), sessionData);
@@ -169,8 +175,39 @@ export default function CreateTest() {
                     <input type="radio" className="sr-only" checked={config.mode === 'timed'} onChange={() => setConfig({...config, mode: 'timed'})} />
                     <span className="font-medium">Timed Mode</span>
                   </label>
+                  <label className={`flex-1 flex items-center justify-center px-4 py-3 border rounded-lg cursor-pointer transition-colors ${config.mode === 'auto' ? 'border-uw-blue bg-blue-50 text-uw-blue' : 'border-slate-200 hover:bg-slate-50'}`}>
+                    <input type="radio" className="sr-only" checked={config.mode === 'auto'} onChange={() => setConfig({...config, mode: 'auto'})} />
+                    <span className="font-medium">Auto Solver</span>
+                  </label>
                 </div>
               </div>
+
+              {config.mode === 'auto' && (
+                <>
+                  <div>
+                    <label htmlFor="autoQuestionTime" className="block text-sm font-medium text-slate-700">Question Timer (seconds)</label>
+                    <input
+                      type="number"
+                      id="autoQuestionTime"
+                      min="1"
+                      className="mt-1 block w-full pl-3 pr-3 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+                      value={config.autoQuestionTime}
+                      onChange={(e) => setConfig({...config, autoQuestionTime: parseInt(e.target.value) || 10})}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="autoAnswerTime" className="block text-sm font-medium text-slate-700">Answer Timer (seconds)</label>
+                    <input
+                      type="number"
+                      id="autoAnswerTime"
+                      min="1"
+                      className="mt-1 block w-full pl-3 pr-3 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+                      value={config.autoAnswerTime}
+                      onChange={(e) => setConfig({...config, autoAnswerTime: parseInt(e.target.value) || 15})}
+                    />
+                  </div>
+                </>
+              )}
 
               <div>
                 <label htmlFor="subject" className="block text-sm font-medium text-slate-700">Subject</label>
