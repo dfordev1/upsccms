@@ -292,6 +292,10 @@ export default function CreateTest() {
                   <option value={20}>20 Questions</option>
                   <option value={40}>40 Questions</option>
                   <option value={50}>50 Questions</option>
+                  <option value={60}>60 Questions</option>
+                  <option value={80}>80 Questions</option>
+                  <option value={100}>100 Questions</option>
+                  <option value={120}>120 Questions</option>
                 </select>
               </div>
             </div>

@@ -6,7 +6,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
-import { ChevronRight, ChevronDown, Folder, FileText, Activity } from 'lucide-react';
+import { ChevronRight, ChevronDown, Folder, FileText, Activity, Download } from 'lucide-react';
 
 // Define the hierarchy structure
 interface HierarchyNode {
@@ -104,6 +104,44 @@ export default function PYQAnalysis() {
 
   const handleSelectNode = (path: string[]) => {
     setSelectedNodePath(path);
+  };
+
+  const exportTreeToCSV = () => {
+    const rows: string[] = [];
+    rows.push(['Subject', 'System', 'Topic', 'Subtopic', 'Year', 'Count'].join(','));
+
+    const aggregated: Record<string, number> = {};
+    questions.forEach(q => {
+      const subject = q.subject || 'Uncategorized Subject';
+      const system = q.system || 'Uncategorized System';
+      const topic = q.topic || 'Uncategorized Topic';
+      const subtopic = q.subtopic || '';
+      const year = q.exam_year || 0;
+      
+      const key = `${subject}|${system}|${topic}|${subtopic}|${year}`;
+      aggregated[key] = (aggregated[key] || 0) + 1;
+    });
+
+    Object.entries(aggregated).forEach(([key, count]) => {
+      const [subject, system, topic, subtopic, year] = key.split('|');
+      rows.push([
+        `"${subject.replace(/"/g, '""')}"`,
+        `"${system.replace(/"/g, '""')}"`,
+        `"${topic.replace(/"/g, '""')}"`,
+        `"${subtopic.replace(/"/g, '""')}"`,
+        year === '0' ? 'Unknown' : year,
+        count
+      ].join(','));
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8," + rows.join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "pyq_analysis_tree.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // Get the currently selected node
@@ -215,6 +253,13 @@ export default function PYQAnalysis() {
           <h1 className="text-2xl font-bold text-slate-900">PYQ Pattern Analysis</h1>
           <p className="text-slate-500 mt-1">Analyze previous year questions by Subject, System, Topic, and Subtopic.</p>
         </div>
+        <button
+          onClick={exportTreeToCSV}
+          className="flex items-center px-4 py-2 text-sm font-medium text-white bg-uw-blue rounded-md hover:bg-uw-blue-hover transition-colors"
+        >
+          <Download size={16} className="mr-2" />
+          Export Tree to CSV
+        </button>
       </div>
 
       {error && (
