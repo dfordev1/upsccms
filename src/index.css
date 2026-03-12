@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-uw-navy: #0A192F;
   --color-uw-blue: #1565C0;
@@ -26,4 +28,33 @@
   .rotate-y-180 {
     transform: rotateY(180deg);
   }
+}
+
+.html-content-wrapper p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.html-content-wrapper p:first-child {
+  margin-top: 0;
+}
+.html-content-wrapper p:last-child {
+  margin-bottom: 0;
+}
+.html-content-wrapper img {
+  max-width: 100%;
+  height: auto;
+  margin: 0.5em 0;
+}
+.html-content-wrapper ul, .html-content-wrapper ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+.html-content-wrapper ul {
+  list-style-type: disc;
+}
+.html-content-wrapper ol {
+  list-style-type: decimal;
+}
+.html-content-wrapper li {
+  margin: 0.25em 0;
 }

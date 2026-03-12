@@ -28,49 +28,49 @@ export default function QuestionBank() {
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
   useEffect(() => {
-    fetchQuestions();
-  }, [user, subjectFilter, systemFilter, difficultyFilter, yearFilter]);
+    const fetchQuestions = async () => {
+      if (!user) return;
+      setLoading(true);
 
-  const fetchQuestions = async () => {
-    if (!user) return;
-    setLoading(true);
+      try {
+        // Fetch all questions to make them available to all users
+        let q = query(collection(db, 'questions'));
 
-    try {
-      // Fetch all questions to make them available to all users
-      let q = query(collection(db, 'questions'));
+        if (subjectFilter) q = query(q, where('subject', '==', subjectFilter));
+        if (systemFilter) q = query(q, where('system', '==', systemFilter));
+        if (difficultyFilter) q = query(q, where('difficulty', '==', difficultyFilter));
+        if (yearFilter) q = query(q, where('exam_year', '==', parseInt(yearFilter)));
 
-      if (subjectFilter) q = query(q, where('subject', '==', subjectFilter));
-      if (systemFilter) q = query(q, where('system', '==', systemFilter));
-      if (difficultyFilter) q = query(q, where('difficulty', '==', difficultyFilter));
-      if (yearFilter) q = query(q, where('exam_year', '==', parseInt(yearFilter)));
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Question));
 
-      const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Question));
+        // Sort by created_at descending manually since we can't easily combine where and orderBy without composite indexes in Firestore
+        data.sort((a, b) => {
+          if (!a.created_at || !b.created_at) return 0;
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
 
-      // Sort by created_at descending manually since we can't easily combine where and orderBy without composite indexes in Firestore
-      data.sort((a, b) => {
-        if (!a.created_at || !b.created_at) return 0;
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
+        setQuestions(data);
 
-      setQuestions(data);
+        // Extract unique values for filters if not already set
+        if (subjects.length === 0 && data.length > 0) {
+          const uniqueSubjects = Array.from(new Set(data.map(q => q.subject).filter(Boolean)));
+          const uniqueSystems = Array.from(new Set(data.map(q => q.system).filter(Boolean)));
+          const uniqueYears = Array.from(new Set(data.map(q => q.exam_year).filter(Boolean))).sort((a, b) => b - a);
 
-      // Extract unique values for filters if not already set
-      if (subjects.length === 0 && data.length > 0) {
-        const uniqueSubjects = Array.from(new Set(data.map(q => q.subject).filter(Boolean)));
-        const uniqueSystems = Array.from(new Set(data.map(q => q.system).filter(Boolean)));
-        const uniqueYears = Array.from(new Set(data.map(q => q.exam_year).filter(Boolean))).sort((a, b) => b - a);
-
-        setSubjects(uniqueSubjects as string[]);
-        setSystems(uniqueSystems as string[]);
-        setYears(uniqueYears as number[]);
+          setSubjects(uniqueSubjects as string[]);
+          setSystems(uniqueSystems as string[]);
+          setYears(uniqueYears as number[]);
+        }
+      } catch (error) {
+        console.error('Error fetching questions:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching questions:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchQuestions();
+  }, [user, subjectFilter, systemFilter, difficultyFilter, yearFilter, subjects.length]);
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this question?')) return;
@@ -131,26 +131,26 @@ export default function QuestionBank() {
     <div className="max-w-7xl mx-auto">
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-uw-navy">Question Bank</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-uw-navy dark:text-slate-100">Question Bank</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Manage and review your UPSC CMS questions.
           </p>
         </div>
         <div className="mt-4 sm:mt-0 flex items-center space-x-4">
           <button
             onClick={openAddModal}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-uw-blue hover:bg-uw-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uw-blue"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-uw-blue hover:bg-uw-blue-hover dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uw-blue dark:focus:ring-offset-slate-900"
           >
             <Plus className="mr-2 h-5 w-5" />
             Add Question
           </button>
           <div className="relative rounded-md shadow-sm">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-slate-400" />
+              <Search className="h-5 w-5 text-slate-400 dark:text-slate-500" />
             </div>
             <input
               type="text"
-              className="focus:ring-uw-blue focus:border-uw-blue block w-full pl-10 sm:text-sm border-slate-300 rounded-md py-2 px-3 border"
+              className="focus:ring-uw-blue dark:focus:ring-blue-500 focus:border-uw-blue dark:focus:border-blue-500 block w-full pl-10 sm:text-sm border-slate-300 dark:border-slate-600 rounded-md py-2 px-3 border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
               placeholder="Search questions..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -159,13 +159,13 @@ export default function QuestionBank() {
         </div>
       </div>
 
-      <div className="bg-white shadow rounded-lg border border-slate-200 mb-6 p-4">
-        <div className="flex items-center text-sm font-medium text-slate-700 mb-3">
+      <div className="bg-white dark:bg-slate-800 shadow rounded-lg border border-slate-200 dark:border-slate-700 mb-6 p-4">
+        <div className="flex items-center text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
           <Filter className="mr-2 h-4 w-4" /> Filters
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <select
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-uw-blue dark:focus:ring-blue-500 focus:border-uw-blue dark:focus:border-blue-500 sm:text-sm rounded-md border bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
             value={subjectFilter}
             onChange={(e) => setSubjectFilter(e.target.value)}
           >
@@ -174,7 +174,7 @@ export default function QuestionBank() {
           </select>
 
           <select
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-uw-blue dark:focus:ring-blue-500 focus:border-uw-blue dark:focus:border-blue-500 sm:text-sm rounded-md border bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
             value={systemFilter}
             onChange={(e) => setSystemFilter(e.target.value)}
           >
@@ -183,7 +183,7 @@ export default function QuestionBank() {
           </select>
 
           <select
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-uw-blue dark:focus:ring-blue-500 focus:border-uw-blue dark:focus:border-blue-500 sm:text-sm rounded-md border bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(e.target.value)}
           >
@@ -194,7 +194,7 @@ export default function QuestionBank() {
           </select>
 
           <select
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-uw-blue dark:focus:ring-blue-500 focus:border-uw-blue dark:focus:border-blue-500 sm:text-sm rounded-md border bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
             value={yearFilter}
             onChange={(e) => setYearFilter(e.target.value)}
           >
@@ -206,78 +206,78 @@ export default function QuestionBank() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uw-blue"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uw-blue dark:border-blue-500"></div>
         </div>
       ) : filteredQuestions.length === 0 ? (
-        <div className="text-center py-12 bg-white shadow rounded-lg border border-slate-200">
-          <Database className="mx-auto h-12 w-12 text-slate-400" />
-          <h3 className="mt-2 text-sm font-medium text-uw-navy">No questions found</h3>
-          <p className="mt-1 text-sm text-slate-500">
+        <div className="text-center py-12 bg-white dark:bg-slate-800 shadow rounded-lg border border-slate-200 dark:border-slate-700">
+          <Database className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500" />
+          <h3 className="mt-2 text-sm font-medium text-uw-navy dark:text-slate-200">No questions found</h3>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Try adjusting your filters or search term, or upload a new CSV.
           </p>
         </div>
       ) : (
         <div className="space-y-4">
           {filteredQuestions.map((q) => (
-            <div key={q.id} className="bg-white shadow rounded-lg border border-slate-200 overflow-hidden">
+            <div key={q.id} className="bg-white dark:bg-slate-800 shadow rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div 
-                className="p-4 sm:p-6 cursor-pointer hover:bg-slate-50 transition-colors"
+                className="p-4 sm:p-6 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                 onClick={() => toggleExpand(q.id)}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1 pr-4">
                     <div className="flex flex-wrap gap-2 mb-2">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-uw-navy">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-uw-navy dark:text-blue-300">
                         {q.subject}
                       </span>
                       {q.system && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300">
                           {q.system}
                         </span>
                       )}
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        q.difficulty === 'hard' ? 'bg-red-100 text-red-800' :
-                        q.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-green-100 text-green-800'
+                        q.difficulty === 'hard' ? 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300' :
+                        q.difficulty === 'medium' ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300' :
+                        'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300'
                       }`}>
                         {q.difficulty}
                       </span>
                       {q.exam_year && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300">
                           {q.exam_year} {q.paper_number ? `(${q.paper_number})` : ''}
                         </span>
                       )}
                     </div>
-                    <h3 className="text-base font-medium text-uw-navy leading-relaxed">
+                    <h3 className="text-base font-medium text-uw-navy dark:text-slate-200 leading-relaxed">
                       {q.stem}
                     </h3>
                   </div>
                   <div className="flex items-center space-x-2">
                     <button 
                       onClick={(e) => { e.stopPropagation(); openEditModal(q); }}
-                      className="p-1 text-slate-400 hover:text-uw-blue transition-colors"
+                      className="p-1 text-slate-400 dark:text-slate-500 hover:text-uw-blue dark:hover:text-blue-400 transition-colors"
                       title="Edit question"
                     >
                       <Edit2 className="h-5 w-5" />
                     </button>
                     <button 
                       onClick={(e) => { e.stopPropagation(); handleDelete(q.id); }}
-                      className="p-1 text-slate-400 hover:text-red-600 transition-colors"
+                      className="p-1 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                       title="Delete question"
                     >
                       <Trash2 className="h-5 w-5" />
                     </button>
                     {expandedId === q.id ? (
-                      <ChevronUp className="h-5 w-5 text-slate-400" />
+                      <ChevronUp className="h-5 w-5 text-slate-400 dark:text-slate-500" />
                     ) : (
-                      <ChevronDown className="h-5 w-5 text-slate-400" />
+                      <ChevronDown className="h-5 w-5 text-slate-400 dark:text-slate-500" />
                     )}
                   </div>
                 </div>
               </div>
 
               {expandedId === q.id && (
-                <div className="px-4 sm:px-6 pb-6 border-t border-slate-100 pt-4 bg-slate-50">
+                <div className="px-4 sm:px-6 pb-6 border-t border-slate-100 dark:border-slate-700 pt-4 bg-slate-50 dark:bg-slate-800/50">
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[1, 2, 3, 4].map((num) => {
@@ -292,22 +292,22 @@ export default function QuestionBank() {
                             key={num} 
                             className={`p-3 rounded-md border ${
                               isCorrect 
-                                ? 'bg-green-50 border-green-200' 
-                                : 'bg-white border-slate-200'
+                                ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/50' 
+                                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
                             }`}
                           >
                             <div className="flex items-start">
                               <span className={`flex-shrink-0 flex items-center justify-center h-6 w-6 rounded-full text-xs font-medium mr-3 ${
-                                isCorrect ? 'bg-green-200 text-green-800' : 'bg-slate-100 text-slate-600'
+                                isCorrect ? 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
                               }`}>
                                 {String.fromCharCode(64 + num)}
                               </span>
                               <div>
-                                <p className={`text-sm ${isCorrect ? 'font-medium text-green-900' : 'text-slate-700'}`}>
+                                <p className={`text-sm ${isCorrect ? 'font-medium text-green-900 dark:text-green-300' : 'text-slate-700 dark:text-slate-300'}`}>
                                   {choiceText}
                                 </p>
                                 {choiceExp && (
-                                  <p className="mt-1 text-xs text-slate-500 italic">
+                                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 italic">
                                     {choiceExp}
                                   </p>
                                 )}
@@ -319,16 +319,16 @@ export default function QuestionBank() {
                     </div>
 
                     {q.explanation && (
-                      <div className="mt-4 p-4 bg-blue-50 rounded-md border border-blue-100">
-                        <h4 className="text-sm font-semibold text-blue-900 mb-1">Explanation</h4>
-                        <p className="text-sm text-blue-800 leading-relaxed">{q.explanation}</p>
+                      <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-100 dark:border-blue-800/50">
+                        <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-1">Explanation</h4>
+                        <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">{q.explanation}</p>
                       </div>
                     )}
 
                     {q.educational_objective && (
                       <div className="mt-2">
-                        <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Educational Objective</h4>
-                        <p className="text-sm text-slate-700">{q.educational_objective}</p>
+                        <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Educational Objective</h4>
+                        <p className="text-sm text-slate-700 dark:text-slate-300">{q.educational_objective}</p>
                       </div>
                     )}
                   </div>

@@ -17,7 +17,7 @@ export default function Calculator({ onClose }: { onClose: () => void }) {
   const calculate = () => {
     try {
       // Basic eval for a simple calculator
-      const result = eval(equation + display);
+      const result = new Function('return ' + equation + display)();
       setDisplay(String(result));
       setEquation('');
     } catch (e) {

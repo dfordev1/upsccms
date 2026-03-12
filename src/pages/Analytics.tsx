@@ -114,7 +114,7 @@ export default function Analytics() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uw-blue"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uw-blue dark:border-blue-400"></div>
       </div>
     );
   }
@@ -132,8 +132,8 @@ export default function Analytics() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-uw-navy">Performance Analytics</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-uw-navy dark:text-slate-100">Performance Analytics</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Track your progress, identify weak areas, and review your overall performance.
         </p>
       </div>
@@ -141,67 +141,67 @@ export default function Analytics() {
       {/* Top Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Overall Score */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col items-center justify-center text-center">
-          <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
-            <Target className="h-6 w-6 text-uw-blue" />
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex flex-col items-center justify-center text-center">
+          <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 mb-4">
+            <Target className="h-6 w-6 text-uw-blue dark:text-blue-400" />
           </div>
-          <h2 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Overall Score</h2>
-          <div className="mt-2 flex items-baseline text-4xl font-extrabold text-uw-navy">
+          <h2 className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Overall Score</h2>
+          <div className="mt-2 flex items-baseline text-4xl font-extrabold text-uw-navy dark:text-slate-100">
             {overallPercentage}%
           </div>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             {overallStats.correct} correct out of {totalAnswered} questions taken
           </p>
         </div>
 
         {/* QBank Usage */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-center">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex flex-col justify-center">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-medium text-slate-500 uppercase tracking-wider">QBank Usage</h2>
-            <TrendingUp className="h-5 w-5 text-uw-blue" />
+            <h2 className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">QBank Usage</h2>
+            <TrendingUp className="h-5 w-5 text-uw-blue dark:text-blue-400" />
           </div>
           <div className="flex items-end justify-between mb-2">
-            <span className="text-3xl font-bold text-uw-navy">{usagePercentage}%</span>
-            <span className="text-sm text-slate-500 mb-1">{overallStats.totalUsed} / {overallStats.totalBankSize} Qs</span>
+            <span className="text-3xl font-bold text-uw-navy dark:text-slate-100">{usagePercentage}%</span>
+            <span className="text-sm text-slate-500 dark:text-slate-400 mb-1">{overallStats.totalUsed} / {overallStats.totalBankSize} Qs</span>
           </div>
-          <div className="w-full bg-slate-100 rounded-full h-3">
+          <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3">
             <div
-              className="bg-uw-blue h-3 rounded-full transition-all duration-500"
+              className="bg-uw-blue dark:bg-blue-500 h-3 rounded-full transition-all duration-500"
               style={{ width: `${usagePercentage}%` }}
             ></div>
           </div>
         </div>
 
         {/* Breakdown Stats */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-center space-y-4">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex flex-col justify-center space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <CheckCircle className="h-5 w-5 text-uw-green mr-2" />
-              <span className="text-sm font-medium text-slate-700">Correct</span>
+              <CheckCircle className="h-5 w-5 text-uw-green dark:text-green-400 mr-2" />
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Correct</span>
             </div>
-            <span className="text-sm font-bold text-uw-navy">{overallStats.correct}</span>
+            <span className="text-sm font-bold text-uw-navy dark:text-slate-100">{overallStats.correct}</span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <XCircle className="h-5 w-5 text-uw-red mr-2" />
-              <span className="text-sm font-medium text-slate-700">Incorrect</span>
+              <XCircle className="h-5 w-5 text-uw-red dark:text-red-400 mr-2" />
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Incorrect</span>
             </div>
-            <span className="text-sm font-bold text-uw-navy">{overallStats.incorrect}</span>
+            <span className="text-sm font-bold text-uw-navy dark:text-slate-100">{overallStats.incorrect}</span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <MinusCircle className="h-5 w-5 text-slate-400 mr-2" />
-              <span className="text-sm font-medium text-slate-700">Omitted</span>
+              <MinusCircle className="h-5 w-5 text-slate-400 dark:text-slate-500 mr-2" />
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Omitted</span>
             </div>
-            <span className="text-sm font-bold text-uw-navy">{overallStats.omitted}</span>
+            <span className="text-sm font-bold text-uw-navy dark:text-slate-100">{overallStats.omitted}</span>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Pie Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 col-span-1">
-          <h2 className="text-base font-semibold text-uw-navy mb-6">Performance Breakdown</h2>
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 col-span-1">
+          <h2 className="text-base font-semibold text-uw-navy dark:text-slate-100 mb-6">Performance Breakdown</h2>
           {totalAnswered > 0 ? (
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -221,13 +221,13 @@ export default function Analytics() {
                   </Pie>
                   <Tooltip 
                     formatter={(value: number) => [`${value} Questions`, '']}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', backgroundColor: 'var(--tw-prose-bg, #fff)' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-64 flex flex-col items-center justify-center text-slate-400">
+            <div className="h-64 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
               <BrainCircuit className="h-12 w-12 mb-2 opacity-20" />
               <p className="text-sm">No tests completed yet</p>
             </div>
@@ -235,8 +235,8 @@ export default function Analytics() {
         </div>
 
         {/* Subject Performance Bar Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 col-span-1 lg:col-span-2">
-          <h2 className="text-base font-semibold text-uw-navy mb-6">Performance by Subject (%)</h2>
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 col-span-1 lg:col-span-2">
+          <h2 className="text-base font-semibold text-uw-navy dark:text-slate-100 mb-6">Performance by Subject (%)</h2>
           {subjectData.length > 0 ? (
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -268,7 +268,7 @@ export default function Analytics() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-64 flex flex-col items-center justify-center text-slate-400">
+            <div className="h-64 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
               <p className="text-sm">Not enough data to display</p>
             </div>
           )}
@@ -276,8 +276,8 @@ export default function Analytics() {
       </div>
 
       {/* System Performance Bar Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
-        <h2 className="text-base font-semibold text-uw-navy mb-6">Performance by System (%)</h2>
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-8">
+        <h2 className="text-base font-semibold text-uw-navy dark:text-slate-100 mb-6">Performance by System (%)</h2>
         {systemData.length > 0 ? (
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -312,7 +312,7 @@ export default function Analytics() {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="h-64 flex flex-col items-center justify-center text-slate-400">
+          <div className="h-64 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
             <p className="text-sm">Not enough data to display</p>
           </div>
         )}

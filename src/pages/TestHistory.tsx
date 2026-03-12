@@ -12,27 +12,27 @@ export default function TestHistory() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchSessions = async () => {
+      if (!user) return;
+      setLoading(true);
+      try {
+        const q = query(collection(db, 'test_sessions'), where('user_id', '==', user.uid));
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TestSession));
+        
+        // Sort manually by created_at descending
+        data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        
+        setSessions(data);
+      } catch (error) {
+        console.error('Error fetching test sessions:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchSessions();
   }, [user]);
-
-  const fetchSessions = async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const q = query(collection(db, 'test_sessions'), where('user_id', '==', user.uid));
-      const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TestSession));
-      
-      // Sort manually by created_at descending
-      data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      
-      setSessions(data);
-    } catch (error) {
-      console.error('Error fetching test sessions:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this test session? This action cannot be undone.')) return;
@@ -60,15 +60,15 @@ export default function TestHistory() {
     <div className="max-w-7xl mx-auto">
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-uw-navy">Test History</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-uw-navy dark:text-slate-100">Test History</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Review your past test sessions and resume incomplete ones.
           </p>
         </div>
         <div className="mt-4 sm:mt-0">
           <Link
             to="/test/create"
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-uw-blue hover:bg-uw-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uw-blue"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-uw-blue hover:bg-uw-blue-hover dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uw-blue dark:focus:ring-offset-slate-900"
           >
             Create New Test
           </Link>
@@ -77,66 +77,66 @@ export default function TestHistory() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uw-blue"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-uw-blue dark:border-blue-500"></div>
         </div>
       ) : sessions.length === 0 ? (
-        <div className="text-center py-12 bg-white shadow rounded-lg border border-slate-200">
-          <Database className="mx-auto h-12 w-12 text-slate-400" />
-          <h3 className="mt-2 text-sm font-medium text-uw-navy">No test history</h3>
-          <p className="mt-1 text-sm text-slate-500">
+        <div className="text-center py-12 bg-white dark:bg-slate-800 shadow rounded-lg border border-slate-200 dark:border-slate-700">
+          <Database className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500" />
+          <h3 className="mt-2 text-sm font-medium text-uw-navy dark:text-slate-200">No test history</h3>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             You haven't taken any tests yet.
           </p>
           <div className="mt-6">
             <Link
               to="/test/create"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-uw-blue hover:bg-uw-blue-hover"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-uw-blue hover:bg-uw-blue-hover dark:bg-blue-600 dark:hover:bg-blue-700"
             >
               Start Your First Test
             </Link>
           </div>
         </div>
       ) : (
-        <div className="bg-white shadow rounded-lg border border-slate-200 overflow-hidden">
-          <ul className="divide-y divide-slate-200">
+        <div className="bg-white dark:bg-slate-800 shadow rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <ul className="divide-y divide-slate-200 dark:divide-slate-700">
             {sessions.map((session) => {
               const answeredCount = Object.keys(session.answers || {}).length;
               const totalCount = session.questions?.length || 0;
               const isCompleted = session.status === 'completed';
 
               return (
-                <li key={session.id} className="hover:bg-slate-50 transition-colors">
+                <li key={session.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                   <div className="px-4 py-4 sm:px-6 flex items-center justify-between">
                     <div className="flex items-center flex-1 min-w-0">
                       {isCompleted ? (
-                        <CheckCircle className="h-8 w-8 text-uw-green flex-shrink-0" />
+                        <CheckCircle className="h-8 w-8 text-uw-green dark:text-green-400 flex-shrink-0" />
                       ) : (
-                        <PlayCircle className="h-8 w-8 text-uw-amber flex-shrink-0" />
+                        <PlayCircle className="h-8 w-8 text-uw-amber dark:text-yellow-500 flex-shrink-0" />
                       )}
                       <div className="ml-4 flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-uw-navy truncate">
+                          <p className="text-sm font-medium text-uw-navy dark:text-slate-200 truncate">
                             {session.mode === 'tutor' ? 'Tutor Mode' : session.mode === 'auto' ? 'Auto Solver' : 'Timed Mode'} Block
                           </p>
                           <div className="ml-2 flex-shrink-0 flex">
                             {isCompleted ? (
-                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-uw-green-bg text-uw-green">
+                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-uw-green-bg dark:bg-green-900/30 text-uw-green dark:text-green-400">
                                 Score: {session.score}%
                               </span>
                             ) : (
-                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-uw-amber">
+                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-uw-amber dark:text-yellow-500">
                                 In Progress
                               </span>
                             )}
                           </div>
                         </div>
-                        <div className="mt-2 flex items-center text-sm text-slate-500 sm:justify-between">
+                        <div className="mt-2 flex items-center text-sm text-slate-500 dark:text-slate-400 sm:justify-between">
                           <div className="sm:flex">
                             <p className="flex items-center">
-                              <Database className="flex-shrink-0 mr-1.5 h-4 w-4 text-slate-400" />
+                              <Database className="flex-shrink-0 mr-1.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                               {answeredCount} / {totalCount} Questions
                             </p>
                             <p className="mt-2 flex items-center sm:mt-0 sm:ml-6">
-                              <Clock className="flex-shrink-0 mr-1.5 h-4 w-4 text-slate-400" />
+                              <Clock className="flex-shrink-0 mr-1.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                               {formatTime(session.created_at)}
                             </p>
                           </div>
@@ -147,14 +147,14 @@ export default function TestHistory() {
                       <Link
                         to={`/test/${session.id}`}
                         className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white ${
-                          isCompleted ? 'bg-uw-blue hover:bg-uw-blue-hover' : 'bg-uw-amber hover:bg-yellow-600'
+                          isCompleted ? 'bg-uw-blue hover:bg-uw-blue-hover dark:bg-blue-600 dark:hover:bg-blue-700' : 'bg-uw-amber hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700'
                         }`}
                       >
                         {isCompleted ? 'Review' : 'Resume'}
                       </Link>
                       <button
                         onClick={() => handleDelete(session.id)}
-                        className="p-1 text-slate-400 hover:text-red-600 transition-colors"
+                        className="p-1 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                         title="Delete session"
                       >
                         <Trash2 className="h-5 w-5" />

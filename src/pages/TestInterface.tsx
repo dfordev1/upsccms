@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../lib/AuthContext';
+import { useTheme } from '../lib/ThemeContext';
 import { TestSession, Question } from '../types';
 import { 
   Calculator as CalcIcon, 
@@ -16,14 +17,63 @@ import {
   CheckCircle,
   XCircle,
   Check,
-  Play
+  Play,
+  Edit2,
+  Save,
+  X,
+  Moon,
+  Sun,
+  Columns
 } from 'lucide-react';
 import Calculator from '../components/Calculator';
 import LabValues from '../components/LabValues';
+import JoditEditor from 'jodit-react';
+import parse from 'html-react-parser';
 
-export default function TestInterface() {
+class ErrorBoundary extends Component<{children: ReactNode, navigate: any}, {hasError: boolean, error: Error | null}> {
+  constructor(props: {children: ReactNode, navigate: any}) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("TestInterface Error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-4">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Something went wrong.</h2>
+          <p className="text-slate-700 mb-4 max-w-lg text-center">{this.state.error?.message}</p>
+          <button onClick={() => this.props.navigate('/')} className="px-4 py-2 bg-uw-blue text-white rounded hover:bg-uw-blue-hover">
+            Return to Dashboard
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+export default function TestInterfaceWrapper() {
+  const navigate = useNavigate();
+  return (
+    <ErrorBoundary navigate={navigate}>
+      <TestInterface />
+    </ErrorBoundary>
+  );
+}
+
+function TestInterface() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   
   const [session, setSession] = useState<TestSession | null>(null);
@@ -43,10 +93,73 @@ export default function TestInterface() {
   const [autoQuestionTime, setAutoQuestionTime] = useState(10);
   const [autoAnswerTime, setAutoAnswerTime] = useState(15);
 
+  // Edit Explanation State
+  const [isEditingExplanation, setIsEditingExplanation] = useState(false);
+  const [editedExplanation, setEditedExplanation] = useState('');
+  const [isSavingExplanation, setIsSavingExplanation] = useState(false);
+
+  // View State
+  const [fontSizeIndex, setFontSizeIndex] = useState(1);
+  const [isCardView, setIsCardView] = useState(false);
+
+  const fontSizes = [
+    { stem: 'text-base', choice: 'text-sm', exp: 'prose-sm' },
+    { stem: 'text-lg', choice: 'text-base', exp: 'prose-base' }, // default
+    { stem: 'text-xl', choice: 'text-lg', exp: 'prose-lg' },
+    { stem: 'text-2xl', choice: 'text-xl', exp: 'prose-xl' },
+    { stem: 'text-3xl', choice: 'text-2xl', exp: 'prose-2xl' },
+  ];
+  const currentFontSize = fontSizes[fontSizeIndex];
+
   // Local state for fast updates (synced to Firestore periodically or on unmount)
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [marked, setMarked] = useState<string[]>([]);
   const [crossedOut, setCrossedOut] = useState<Record<string, number[]>>({});
+
+  // Reset editing state on navigation
+  useEffect(() => {
+    setIsEditingExplanation(false);
+    setEditedExplanation('');
+  }, [currentIndex]);
+
+  const saveProgress = React.useCallback(async (updates: Partial<TestSession>) => {
+    if (!id || !session) return;
+    try {
+      const docRef = doc(db, 'test_sessions', id);
+      await updateDoc(docRef, updates);
+    } catch (error) {
+      console.error("Error saving progress:", error);
+    }
+  }, [id, session]);
+
+  const handleEndBlock = React.useCallback(async (force = false) => {
+    if (!session) return;
+    
+    if (!force && !window.confirm("Are you sure you want to end this block?")) return;
+    
+    let correctCount = 0;
+    session.questions.forEach(q => {
+      if (answers[q.id] === q.correct_answer) correctCount++;
+    });
+    
+    const totalQuestions = session.questions.length;
+    const score = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+    
+    const updates = { 
+      answers, 
+      marked, 
+      crossed_out: crossedOut,
+      status: 'completed' as const,
+      completed_at: new Date().toISOString(),
+      score
+    };
+
+    setSession({ ...session, ...updates });
+    setIsReviewMode(true);
+    setCurrentIndex(0);
+    
+    await saveProgress(updates);
+  }, [session, answers, marked, crossedOut, saveProgress]);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -94,63 +207,46 @@ export default function TestInterface() {
 
   // Timer effect
   useEffect(() => {
-    if (loading || isReviewMode || !session || session.status === 'completed') return;
+    if (loading || isReviewMode || !session || session.status === 'completed' || session.mode === 'auto') return;
     
+    if (timeRemaining <= 0) {
+      handleEndBlock(true);
+      return;
+    }
+
     const timer = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          if (session.mode !== 'auto') {
-            handleEndBlock();
-          }
-          return 0;
-        }
-        return prev - 1;
-      });
+      setTimeRemaining((prev) => Math.max(0, prev - 1));
     }, 1000);
     
     return () => clearInterval(timer);
-  }, [loading, isReviewMode, session]);
+  }, [loading, isReviewMode, session, timeRemaining, handleEndBlock]);
 
   // Auto mode timer effect
   useEffect(() => {
     if (loading || isReviewMode || !session || session.status === 'completed' || session.mode !== 'auto' || !isAutoPlaying) return;
 
-    const autoTimer = setInterval(() => {
-      setAutoTimeRemaining((prev) => {
-        if (prev <= 1) {
-          // Time is up for current state
-          if (autoState === 'question') {
-            setAutoState('explanation');
-            return autoAnswerTime;
-          } else {
-            // Move to next question or end block
-            if (currentIndex < session.questions.length - 1) {
-              setCurrentIndex(c => c + 1);
-              setAutoState('question');
-              return autoQuestionTime;
-            } else {
-              handleEndBlock();
-              return 0;
-            }
-          }
+    if (autoTimeRemaining <= 0) {
+      if (autoState === 'question') {
+        setAutoState('explanation');
+        setAutoTimeRemaining(autoAnswerTime);
+      } else {
+        if (currentIndex < session.questions.length - 1) {
+          setCurrentIndex(c => c + 1);
+          setAutoState('question');
+          setAutoTimeRemaining(autoQuestionTime);
+        } else {
+          handleEndBlock(true);
         }
-        return prev - 1;
-      });
+      }
+      return;
+    }
+
+    const autoTimer = setInterval(() => {
+      setAutoTimeRemaining((prev) => Math.max(0, prev - 1));
     }, 1000);
 
     return () => clearInterval(autoTimer);
-  }, [loading, isReviewMode, session, isAutoPlaying, autoState, currentIndex, autoQuestionTime, autoAnswerTime]);
-
-  const saveProgress = async (updates: Partial<TestSession>) => {
-    if (!id || !session) return;
-    try {
-      const docRef = doc(db, 'test_sessions', id);
-      await updateDoc(docRef, updates);
-    } catch (error) {
-      console.error("Error saving progress:", error);
-    }
-  };
+  }, [loading, isReviewMode, session, isAutoPlaying, autoState, currentIndex, autoQuestionTime, autoAnswerTime, autoTimeRemaining, handleEndBlock]);
 
   const handleAnswer = (choiceNum: number) => {
     if (!session || isReviewMode) return;
@@ -200,6 +296,7 @@ export default function TestInterface() {
         setAutoState('question');
         setAutoTimeRemaining(autoQuestionTime);
       }
+      setIsEditingExplanation(false);
     }
   };
 
@@ -210,37 +307,43 @@ export default function TestInterface() {
         setAutoState('question');
         setAutoTimeRemaining(autoQuestionTime);
       }
+      setIsEditingExplanation(false);
+    }
+  };
+
+  const handleSaveExplanation = async () => {
+    if (!session || !id) return;
+    const currentQ = session.questions[currentIndex];
+    setIsSavingExplanation(true);
+    try {
+      // Try to update in questions collection (might fail if user lacks permissions)
+      try {
+        const questionRef = doc(db, 'questions', currentQ.id);
+        await updateDoc(questionRef, { explanation: editedExplanation });
+      } catch (qError) {
+        console.warn("Could not update global question (might lack permissions):", qError);
+      }
+      
+      // Update in current session
+      const updatedQuestions = [...session.questions];
+      updatedQuestions[currentIndex] = { ...currentQ, explanation: editedExplanation };
+      
+      const sessionRef = doc(db, 'test_sessions', id);
+      await updateDoc(sessionRef, { questions: updatedQuestions });
+      
+      setSession({ ...session, questions: updatedQuestions });
+      setIsEditingExplanation(false);
+    } catch (error) {
+      console.error("Error saving explanation:", error);
+      alert("Failed to save explanation");
+    } finally {
+      setIsSavingExplanation(false);
     }
   };
 
   const handleSuspend = async () => {
     await saveProgress({ answers, marked, crossed_out: crossedOut });
     navigate('/');
-  };
-
-  const handleEndBlock = async () => {
-    if (!session) return;
-    
-    if (!window.confirm("Are you sure you want to end this block?")) return;
-    
-    let correctCount = 0;
-    session.questions.forEach(q => {
-      if (answers[q.id] === q.correct_answer) correctCount++;
-    });
-    
-    const score = Math.round((correctCount / session.questions.length) * 100);
-    
-    await saveProgress({ 
-      answers, 
-      marked, 
-      crossed_out: crossedOut,
-      status: 'completed',
-      completed_at: new Date().toISOString(),
-      score
-    });
-    
-    setIsReviewMode(true);
-    setCurrentIndex(0);
   };
 
   const formatTime = (seconds: number) => {
@@ -255,13 +358,35 @@ export default function TestInterface() {
   }
 
   const currentQ = session.questions[currentIndex];
+  
+  const renderContent = (text: string | undefined) => {
+    if (!text) return null;
+    const isHtml = /<[a-z][\s\S]*>/i.test(text);
+    if (isHtml) {
+      return <div className="html-content-wrapper">{parse(text)}</div>;
+    }
+    return <div className="whitespace-pre-wrap">{text}</div>;
+  };
+
+  if (!currentQ) {
+    return (
+      <div className="h-screen bg-slate-100 flex flex-col items-center justify-center p-4">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Question Not Found</h2>
+        <p className="text-slate-700 mb-4">The requested question could not be loaded.</p>
+        <button onClick={() => navigate('/')} className="px-4 py-2 bg-uw-blue text-white rounded hover:bg-uw-blue-hover">
+          Return to Dashboard
+        </button>
+      </div>
+    );
+  }
+
   const isAnswered = !!answers[currentQ.id];
   const showExplanation = isReviewMode || (session.mode === 'tutor' && isAnswered) || (session.mode === 'auto' && autoState === 'explanation');
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans">
+    <div className="h-screen overflow-hidden bg-white dark:bg-slate-950 flex flex-col font-sans transition-colors duration-200">
       {/* Top Navigation Bar */}
-      <div className="bg-uw-blue text-white flex items-center justify-between px-4 py-2 shadow-md z-10">
+      <div className="bg-uw-blue dark:bg-slate-900 text-white flex items-center justify-between px-4 py-2 shadow-md z-10 border-b border-transparent dark:border-slate-800">
         <div className="flex items-center space-x-4">
           <button onClick={() => setShowCalc(!showCalc)} className="flex items-center space-x-1 hover:text-blue-200 text-sm font-medium">
             <CalcIcon size={18} />
@@ -290,6 +415,21 @@ export default function TestInterface() {
         </div>
         
         <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="hidden md:flex items-center bg-blue-800 dark:bg-slate-800 rounded-md overflow-hidden mr-2">
+            <button onClick={() => setFontSizeIndex(Math.max(0, fontSizeIndex - 1))} className="px-2 py-1 hover:bg-blue-700 dark:hover:bg-slate-700 text-white font-bold text-sm">-</button>
+            <span className="px-2 py-1 text-xs font-medium text-blue-100 dark:text-slate-300">aA</span>
+            <button onClick={() => setFontSizeIndex(Math.min(4, fontSizeIndex + 1))} className="px-2 py-1 hover:bg-blue-700 dark:hover:bg-slate-700 text-white font-bold text-sm">+</button>
+          </div>
+          
+          <button onClick={() => setIsCardView(!isCardView)} className={`hidden md:flex items-center space-x-1 text-sm font-medium mr-2 ${isCardView ? 'text-uw-amber' : 'hover:text-blue-200'}`}>
+            <Columns size={18} />
+            <span className="hidden lg:inline">Card View</span>
+          </button>
+
+          <button onClick={toggleTheme} className="flex items-center space-x-1 hover:text-blue-200 text-sm font-medium mr-2">
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            <span className="hidden sm:inline">{theme === 'dark' ? 'Day' : 'Night'}</span>
+          </button>
           <button onClick={toggleMark} className={`flex items-center space-x-1 text-sm font-medium ${marked.includes(currentQ.id) ? 'text-uw-amber' : 'hover:text-blue-200'}`}>
             <Flag size={18} fill={marked.includes(currentQ.id) ? "currentColor" : "none"} />
             <span className="hidden sm:inline">Mark</span>
@@ -310,124 +450,196 @@ export default function TestInterface() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-6 sm:p-10 max-w-5xl mx-auto w-full">
-          {/* Question Stem */}
-          <div className="text-lg text-uw-navy leading-relaxed mb-8 whitespace-pre-wrap">
-            {currentQ.stem}
-          </div>
-
-          {/* Choices */}
-          <div className="space-y-3 mb-8">
-            {[1, 2, 3, 4].map((num) => {
-              const choiceText = currentQ[`choice_${num}` as keyof Question] as string;
-              if (!choiceText) return null;
-
-              const isCrossedOut = (crossedOut[currentQ.id] || []).includes(num);
-              const isSelected = answers[currentQ.id] === num;
-              const isCorrect = currentQ.correct_answer === num;
-              
-              let choiceClass = "border-transparent hover:bg-slate-50 cursor-pointer";
-              let textClass = "text-slate-800";
-              let icon = null;
-
-              if (showExplanation) {
-                choiceClass = "cursor-default";
-                if (isCorrect) {
-                  choiceClass = "bg-uw-green-bg border-uw-green";
-                  textClass = "text-uw-green font-medium";
-                  icon = <CheckCircle className="h-5 w-5 text-uw-green ml-auto" />;
-                } else if (isSelected && session.mode !== 'auto') {
-                  choiceClass = "bg-uw-red-bg border-uw-red";
-                  textClass = "text-uw-red font-medium";
-                  icon = <XCircle className="h-5 w-5 text-uw-red ml-auto" />;
-                }
-              } else if (isSelected) {
-                choiceClass = "bg-blue-50 border-uw-blue";
-              }
-
-              if (isCrossedOut && !showExplanation) {
-                textClass += " line-through text-slate-400";
-              }
-
-              return (
-                <div
-                  key={num}
-                  onClick={() => handleAnswer(num)}
-                  className={`group relative flex items-center p-3 rounded border-2 transition-colors ${choiceClass}`}
-                >
-                  <div className="flex items-center flex-1">
-                    <div className={`flex-shrink-0 h-5 w-5 rounded-full border flex items-center justify-center mr-4 ${
-                      isSelected ? 'border-uw-blue bg-uw-blue' : 'border-slate-400'
-                    }`}>
-                      {isSelected && <div className="h-2 w-2 rounded-full bg-white" />}
-                    </div>
-                    <span className="font-bold mr-3 text-slate-700">{String.fromCharCode(64 + num)}.</span>
-                    <span className={`text-base ${textClass}`}>{choiceText}</span>
-                  </div>
-                  
-                  {icon}
-
-                  {/* Strikethrough Button */}
-                  {!showExplanation && (
-                    <button
-                      onClick={(e) => toggleCrossOut(e, num)}
-                      className={`ml-4 p-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity ${
-                        isCrossedOut ? 'bg-slate-200 text-slate-700 opacity-100' : 'text-slate-400 hover:bg-slate-100'
-                      }`}
-                      title="Cross out choice"
-                    >
-                      <Strikethrough size={16} />
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Explanation Section */}
-          {showExplanation && (
-            <div className="mt-8 border-t-2 border-slate-200 pt-8 animate-in fade-in duration-500 bg-uw-gray p-6 rounded-lg">
-              <h3 className="text-xl font-bold text-uw-navy mb-4">Explanation</h3>
-              
-              <div className="prose max-w-none text-uw-navy mb-8">
-                <p className="whitespace-pre-wrap leading-relaxed">{currentQ.explanation}</p>
+        <div className={`flex-1 overflow-y-auto p-6 sm:p-10 mx-auto w-full ${isCardView ? 'max-w-7xl' : 'max-w-5xl'}`}>
+          <div className={isCardView && showExplanation ? "grid grid-cols-1 lg:grid-cols-2 gap-8 h-full" : ""}>
+            
+            {/* Left Column (Question + Choices) */}
+            <div className={isCardView && showExplanation ? "overflow-y-auto pr-2 lg:pr-4" : ""}>
+              {/* Question Stem */}
+              <div className={`${currentFontSize.stem} text-uw-navy dark:text-slate-200 leading-relaxed mb-8 content-html`}>
+                {renderContent(currentQ.stem)}
               </div>
 
-              {/* Choice Explanations */}
-              <div className="space-y-4 mb-8">
+              {/* Choices */}
+              <div className="space-y-3 mb-8">
                 {[1, 2, 3, 4].map((num) => {
-                  const choiceExp = currentQ[`choice_${num}_explanation` as keyof Question] as string;
-                  if (!choiceExp) return null;
-                  
+                  const choiceText = currentQ[`choice_${num}` as keyof Question] as string;
+                  if (!choiceText) return null;
+
+                  const isCrossedOut = (crossedOut[currentQ.id] || []).includes(num);
+                  const isSelected = answers[currentQ.id] === num;
                   const isCorrect = currentQ.correct_answer === num;
                   
+                  let choiceClass = "border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer";
+                  let textClass = "text-slate-800 dark:text-slate-300";
+                  let icon = null;
+
+                  if (showExplanation) {
+                    choiceClass = "cursor-default";
+                    if (isCorrect) {
+                      choiceClass = "bg-uw-green-bg dark:bg-green-900/30 border-uw-green dark:border-green-600";
+                      textClass = "text-uw-green dark:text-green-400 font-medium";
+                      icon = <CheckCircle className="h-5 w-5 text-uw-green dark:text-green-400 ml-auto" />;
+                    } else if (isSelected && session.mode !== 'auto') {
+                      choiceClass = "bg-uw-red-bg dark:bg-red-900/30 border-uw-red dark:border-red-600";
+                      textClass = "text-uw-red dark:text-red-400 font-medium";
+                      icon = <XCircle className="h-5 w-5 text-uw-red dark:text-red-400 ml-auto" />;
+                    }
+                  } else if (isSelected) {
+                    choiceClass = "bg-blue-50 dark:bg-blue-900/30 border-uw-blue dark:border-blue-500";
+                  }
+
+                  if (isCrossedOut && !showExplanation) {
+                    textClass += " line-through text-slate-400 dark:text-slate-500";
+                  }
+
                   return (
-                    <div key={num} className="flex items-start">
-                      <span className={`font-bold mr-2 ${isCorrect ? 'text-uw-green' : 'text-uw-red'}`}>
-                        Choice {String.fromCharCode(64 + num)}:
-                      </span>
-                      <span className="text-uw-navy">{choiceExp}</span>
+                    <div
+                      key={num}
+                      onClick={() => handleAnswer(num)}
+                      className={`group relative flex items-center p-3 rounded border-2 transition-colors ${choiceClass}`}
+                    >
+                      <div className="flex items-center flex-1">
+                        <div className={`flex-shrink-0 h-5 w-5 rounded-full border flex items-center justify-center mr-4 ${
+                          isSelected ? 'border-uw-blue bg-uw-blue dark:border-blue-500 dark:bg-blue-500' : 'border-slate-400 dark:border-slate-600'
+                        }`}>
+                          {isSelected && <div className="h-2 w-2 rounded-full bg-white dark:bg-slate-900" />}
+                        </div>
+                        <span className="font-bold mr-3 text-slate-700 dark:text-slate-400">{String.fromCharCode(64 + num)}.</span>
+                        <span className={`${currentFontSize.choice} ${textClass} content-html`}>{renderContent(choiceText)}</span>
+                      </div>
+                      
+                      {icon}
+
+                      {/* Strikethrough Button */}
+                      {!showExplanation && (
+                        <button
+                          onClick={(e) => toggleCrossOut(e, num)}
+                          className={`ml-4 p-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity ${
+                            isCrossedOut ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 opacity-100' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+                          }`}
+                          title="Cross out choice"
+                        >
+                          <Strikethrough size={16} />
+                        </button>
+                      )}
                     </div>
                   );
                 })}
               </div>
-
-              {/* Educational Objective */}
-              {currentQ.educational_objective && (
-                <div className="bg-white border border-slate-300 rounded-lg p-5 shadow-sm">
-                  <h4 className="text-sm font-bold text-uw-navy uppercase tracking-wider mb-2">Educational Objective</h4>
-                  <p className="text-uw-navy font-medium">{currentQ.educational_objective}</p>
-                </div>
-              )}
             </div>
-          )}
+
+            {/* Right Column (Explanation) */}
+            {showExplanation && (
+              <div className={isCardView ? "overflow-y-auto pl-2 lg:pl-4 lg:border-l-2 border-slate-200 dark:border-slate-800" : ""}>
+                <div className={`${isCardView ? 'mt-0' : 'mt-8 border-t-2 border-slate-200 dark:border-slate-800 pt-8'} animate-in fade-in duration-500 bg-uw-gray dark:bg-slate-900 p-6 rounded-lg`}>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-uw-navy dark:text-slate-100">Explanation</h3>
+                    {!isEditingExplanation ? (
+                      <button 
+                        onClick={() => {
+                          setEditedExplanation(currentQ.explanation || '');
+                          setIsEditingExplanation(true);
+                        }}
+                        className="flex items-center text-sm text-uw-blue dark:text-blue-400 hover:text-uw-blue-hover dark:hover:text-blue-300"
+                      >
+                        <Edit2 size={16} className="mr-1" /> Edit
+                      </button>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <button 
+                          onClick={() => setIsEditingExplanation(false)}
+                          className="flex items-center text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                        >
+                          <X size={16} className="mr-1" /> Cancel
+                        </button>
+                        <button 
+                          onClick={handleSaveExplanation}
+                          disabled={isSavingExplanation}
+                          className="flex items-center text-sm text-white bg-uw-blue dark:bg-blue-600 hover:bg-uw-blue-hover dark:hover:bg-blue-700 px-3 py-1 rounded"
+                        >
+                          <Save size={16} className="mr-1" /> {isSavingExplanation ? 'Saving...' : 'Save'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="mb-8">
+                    {isEditingExplanation ? (
+                      <div className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+                        <JoditEditor 
+                          value={editedExplanation} 
+                          config={{
+                            readonly: false,
+                            height: 400,
+                            uploader: {
+                              insertImageAsBase64URI: true
+                            },
+                            askBeforePasteHTML: false,
+                            askBeforePasteFromWord: false,
+                            defaultActionOnPaste: 'insert_as_html' as any,
+                            theme: theme === 'dark' ? 'dark' : 'default',
+                            toolbarAdaptive: false,
+                            buttons: [
+                              'source', '|',
+                              'bold', 'strikethrough', 'underline', 'italic', '|',
+                              'ul', 'ol', '|',
+                              'outdent', 'indent', '|',
+                              'font', 'fontsize', 'brush', 'paragraph', '|',
+                              'image', 'video', 'table', 'link', '|',
+                              'align', 'undo', 'redo', '|',
+                              'hr', 'eraser', 'copyformat', '|',
+                              'symbol', 'fullsize', 'print', 'about'
+                            ]
+                          }}
+                          onBlur={newContent => setEditedExplanation(newContent)}
+                          onChange={() => {}}
+                        />
+                      </div>
+                    ) : (
+                      <div className={`prose ${currentFontSize.exp} dark:prose-invert max-w-none text-uw-navy dark:text-slate-300 prose-p:my-2 prose-img:my-2 prose-ul:my-2 prose-li:my-0 prose-headings:my-3 leading-relaxed content-html`}>
+                        {renderContent(currentQ.explanation)}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Choice Explanations */}
+                  <div className={`space-y-4 mb-8 ${currentFontSize.choice}`}>
+                    {[1, 2, 3, 4].map((num) => {
+                      const choiceExp = currentQ[`choice_${num}_explanation` as keyof Question] as string;
+                      if (!choiceExp) return null;
+                      
+                      const isCorrect = currentQ.correct_answer === num;
+                      
+                      return (
+                        <div key={num} className="flex items-start">
+                          <span className={`font-bold mr-2 ${isCorrect ? 'text-uw-green dark:text-green-400' : 'text-uw-red dark:text-red-400'}`}>
+                            Choice {String.fromCharCode(64 + num)}:
+                          </span>
+                          <span className="text-uw-navy dark:text-slate-300 content-html">{renderContent(choiceExp)}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Educational Objective */}
+                  {currentQ.educational_objective && (
+                    <div className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-5 shadow-sm">
+                      <h4 className="text-sm font-bold text-uw-navy dark:text-slate-200 uppercase tracking-wider mb-2">Educational Objective</h4>
+                      <div className="text-uw-navy dark:text-slate-300 font-medium content-html leading-relaxed">{renderContent(currentQ.educational_objective)}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Bottom Navigation Grid */}
-      <div className="bg-slate-100 border-t border-slate-300 p-2 flex items-center justify-between">
+      <div className="bg-slate-100 dark:bg-slate-900 border-t border-slate-300 dark:border-slate-800 p-2 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <button onClick={handleSuspend} className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded hover:bg-slate-50">
+          <button onClick={handleSuspend} className="flex items-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
             <Pause size={16} className="mr-2" /> Suspend
           </button>
           {session.mode === 'auto' && !isReviewMode && (
@@ -440,34 +652,34 @@ export default function TestInterface() {
             </button>
           )}
           {session.mode === 'auto' && !isReviewMode && (
-            <div className="flex items-center space-x-2 bg-white px-3 py-1.5 rounded border border-slate-300">
+            <div className="flex items-center space-x-2 bg-white dark:bg-slate-800 px-3 py-1.5 rounded border border-slate-300 dark:border-slate-700">
               <div className="flex items-center space-x-1">
-                <label className="text-xs text-slate-500 font-medium">Q Timer:</label>
+                <label className="text-xs text-slate-500 dark:text-slate-400 font-medium">Q Timer:</label>
                 <input 
                   type="number" 
                   min="1" 
                   value={autoQuestionTime} 
                   onChange={(e) => setAutoQuestionTime(Math.max(1, parseInt(e.target.value) || 10))}
-                  className="w-12 text-sm border border-slate-200 rounded px-1 py-0.5 focus:outline-none focus:border-uw-blue"
+                  className="w-12 text-sm border border-slate-200 dark:border-slate-600 rounded px-1 py-0.5 focus:outline-none focus:border-uw-blue dark:bg-slate-700 dark:text-white"
                 />
-                <span className="text-xs text-slate-500">s</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400">s</span>
               </div>
-              <div className="w-px h-4 bg-slate-300 mx-1"></div>
+              <div className="w-px h-4 bg-slate-300 dark:bg-slate-600 mx-1"></div>
               <div className="flex items-center space-x-1">
-                <label className="text-xs text-slate-500 font-medium">A Timer:</label>
+                <label className="text-xs text-slate-500 dark:text-slate-400 font-medium">A Timer:</label>
                 <input 
                   type="number" 
                   min="1" 
                   value={autoAnswerTime} 
                   onChange={(e) => setAutoAnswerTime(Math.max(1, parseInt(e.target.value) || 15))}
-                  className="w-12 text-sm border border-slate-200 rounded px-1 py-0.5 focus:outline-none focus:border-uw-blue"
+                  className="w-12 text-sm border border-slate-200 dark:border-slate-600 rounded px-1 py-0.5 focus:outline-none focus:border-uw-blue dark:bg-slate-700 dark:text-white"
                 />
-                <span className="text-xs text-slate-500">s</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400">s</span>
               </div>
             </div>
           )}
           {!isReviewMode && (
-            <button onClick={handleEndBlock} className="flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded hover:bg-red-700">
+            <button onClick={() => handleEndBlock()} className="flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded hover:bg-red-700">
               <Square size={16} className="mr-2" /> End Block
             </button>
           )}
@@ -479,13 +691,13 @@ export default function TestInterface() {
             const isAns = !!answers[q.id];
             const isMarked = marked.includes(q.id);
             
-            let bgClass = "bg-white border-slate-300 text-slate-600";
-            if (isCurrent) bgClass = "bg-uw-blue border-uw-blue text-white";
+            let bgClass = "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300";
+            if (isCurrent) bgClass = "bg-uw-blue dark:bg-blue-600 border-uw-blue dark:border-blue-600 text-white";
             else if (isReviewMode) {
-              if (answers[q.id] === q.correct_answer) bgClass = "bg-uw-green-bg border-uw-green text-uw-green";
-              else if (isAns) bgClass = "bg-uw-red-bg border-uw-red text-uw-red";
+              if (answers[q.id] === q.correct_answer) bgClass = "bg-uw-green-bg dark:bg-green-900/50 border-uw-green dark:border-green-600 text-uw-green dark:text-green-400";
+              else if (isAns) bgClass = "bg-uw-red-bg dark:bg-red-900/50 border-uw-red dark:border-red-600 text-uw-red dark:text-red-400";
             } else if (isAns) {
-              bgClass = "bg-slate-300 border-slate-400 text-slate-800";
+              bgClass = "bg-slate-300 dark:bg-slate-700 border-slate-400 dark:border-slate-600 text-slate-800 dark:text-slate-200";
             }
 
             return (

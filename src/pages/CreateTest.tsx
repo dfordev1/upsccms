@@ -30,26 +30,26 @@ export default function CreateTest() {
   const [years, setYears] = useState<number[]>([]);
 
   useEffect(() => {
+    const fetchOptions = async () => {
+      if (!user) return;
+      try {
+        // Fetch all questions to make them available to all users
+        const q = query(collection(db, 'questions'));
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map(doc => doc.data() as Question);
+        
+        if (data.length > 0) {
+          setSubjects(Array.from(new Set(data.map(q => q.subject).filter(Boolean))));
+          setSystems(Array.from(new Set(data.map(q => q.system).filter(Boolean))));
+          setYears(Array.from(new Set(data.map(q => q.exam_year).filter(Boolean))).sort((a, b) => b - a));
+        }
+      } catch (error) {
+        console.error('Error fetching options:', error);
+      }
+    };
+
     fetchOptions();
   }, [user]);
-
-  const fetchOptions = async () => {
-    if (!user) return;
-    try {
-      // Fetch all questions to make them available to all users
-      const q = query(collection(db, 'questions'));
-      const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map(doc => doc.data() as Question);
-      
-      if (data.length > 0) {
-        setSubjects(Array.from(new Set(data.map(q => q.subject).filter(Boolean))));
-        setSystems(Array.from(new Set(data.map(q => q.system).filter(Boolean))));
-        setYears(Array.from(new Set(data.map(q => q.exam_year).filter(Boolean))).sort((a, b) => b - a));
-      }
-    } catch (error) {
-      console.error('Error fetching options:', error);
-    }
-  };
 
   const startPractice = async () => {
     if (!user) return;
@@ -146,36 +146,36 @@ export default function CreateTest() {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-8 text-center">
-        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-4">
-          <BrainCircuit className="h-8 w-8 text-uw-blue" />
+        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-900/50 mb-4">
+          <BrainCircuit className="h-8 w-8 text-uw-blue dark:text-blue-400" />
         </div>
-        <h1 className="text-3xl font-bold text-uw-navy">Create Test</h1>
-        <p className="mt-2 text-lg text-slate-600">
+        <h1 className="text-3xl font-bold text-uw-navy dark:text-slate-100">Create Test</h1>
+        <p className="mt-2 text-lg text-slate-600 dark:text-slate-400">
           Configure your practice session to focus on specific areas.
         </p>
       </div>
 
-      <div className="bg-white shadow-xl rounded-2xl border border-slate-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 shadow-xl rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="px-6 py-8 sm:p-10">
           <div className="flex items-center mb-6">
-            <Settings className="h-5 w-5 text-slate-400 mr-2" />
-            <h2 className="text-xl font-semibold text-uw-navy">Test Settings</h2>
+            <Settings className="h-5 w-5 text-slate-400 dark:text-slate-500 mr-2" />
+            <h2 className="text-xl font-semibold text-uw-navy dark:text-slate-100">Test Settings</h2>
           </div>
 
           <div className="space-y-6">
             <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
               <div className="col-span-1 sm:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-2">Test Mode</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Test Mode</label>
                 <div className="flex space-x-4">
-                  <label className={`flex-1 flex items-center justify-center px-4 py-3 border rounded-lg cursor-pointer transition-colors ${config.mode === 'tutor' ? 'border-uw-blue bg-blue-50 text-uw-blue' : 'border-slate-200 hover:bg-slate-50'}`}>
+                  <label className={`flex-1 flex items-center justify-center px-4 py-3 border rounded-lg cursor-pointer transition-colors ${config.mode === 'tutor' ? 'border-uw-blue bg-blue-50 dark:bg-blue-900/30 text-uw-blue dark:text-blue-400' : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'}`}>
                     <input type="radio" className="sr-only" checked={config.mode === 'tutor'} onChange={() => setConfig({...config, mode: 'tutor'})} />
                     <span className="font-medium">Tutor Mode</span>
                   </label>
-                  <label className={`flex-1 flex items-center justify-center px-4 py-3 border rounded-lg cursor-pointer transition-colors ${config.mode === 'timed' ? 'border-uw-blue bg-blue-50 text-uw-blue' : 'border-slate-200 hover:bg-slate-50'}`}>
+                  <label className={`flex-1 flex items-center justify-center px-4 py-3 border rounded-lg cursor-pointer transition-colors ${config.mode === 'timed' ? 'border-uw-blue bg-blue-50 dark:bg-blue-900/30 text-uw-blue dark:text-blue-400' : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'}`}>
                     <input type="radio" className="sr-only" checked={config.mode === 'timed'} onChange={() => setConfig({...config, mode: 'timed'})} />
                     <span className="font-medium">Timed Mode</span>
                   </label>
-                  <label className={`flex-1 flex items-center justify-center px-4 py-3 border rounded-lg cursor-pointer transition-colors ${config.mode === 'auto' ? 'border-uw-blue bg-blue-50 text-uw-blue' : 'border-slate-200 hover:bg-slate-50'}`}>
+                  <label className={`flex-1 flex items-center justify-center px-4 py-3 border rounded-lg cursor-pointer transition-colors ${config.mode === 'auto' ? 'border-uw-blue bg-blue-50 dark:bg-blue-900/30 text-uw-blue dark:text-blue-400' : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'}`}>
                     <input type="radio" className="sr-only" checked={config.mode === 'auto'} onChange={() => setConfig({...config, mode: 'auto'})} />
                     <span className="font-medium">Auto Solver</span>
                   </label>
@@ -185,23 +185,23 @@ export default function CreateTest() {
               {config.mode === 'auto' && (
                 <>
                   <div>
-                    <label htmlFor="autoQuestionTime" className="block text-sm font-medium text-slate-700">Question Timer (seconds)</label>
+                    <label htmlFor="autoQuestionTime" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Question Timer (seconds)</label>
                     <input
                       type="number"
                       id="autoQuestionTime"
                       min="1"
-                      className="mt-1 block w-full pl-3 pr-3 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+                      className="mt-1 block w-full pl-3 pr-3 py-2 text-base border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
                       value={config.autoQuestionTime}
                       onChange={(e) => setConfig({...config, autoQuestionTime: parseInt(e.target.value) || 10})}
                     />
                   </div>
                   <div>
-                    <label htmlFor="autoAnswerTime" className="block text-sm font-medium text-slate-700">Answer Timer (seconds)</label>
+                    <label htmlFor="autoAnswerTime" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Answer Timer (seconds)</label>
                     <input
                       type="number"
                       id="autoAnswerTime"
                       min="1"
-                      className="mt-1 block w-full pl-3 pr-3 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+                      className="mt-1 block w-full pl-3 pr-3 py-2 text-base border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
                       value={config.autoAnswerTime}
                       onChange={(e) => setConfig({...config, autoAnswerTime: parseInt(e.target.value) || 15})}
                     />
@@ -210,10 +210,10 @@ export default function CreateTest() {
               )}
 
               <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-slate-700">Subject</label>
+                <label htmlFor="subject" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Subject</label>
                 <select
                   id="subject"
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
                   value={config.subject}
                   onChange={(e) => setConfig({...config, subject: e.target.value})}
                 >
@@ -223,10 +223,10 @@ export default function CreateTest() {
               </div>
 
               <div>
-                <label htmlFor="system" className="block text-sm font-medium text-slate-700">System</label>
+                <label htmlFor="system" className="block text-sm font-medium text-slate-700 dark:text-slate-300">System</label>
                 <select
                   id="system"
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
                   value={config.system}
                   onChange={(e) => setConfig({...config, system: e.target.value})}
                 >
@@ -236,10 +236,10 @@ export default function CreateTest() {
               </div>
 
               <div>
-                <label htmlFor="difficulty" className="block text-sm font-medium text-slate-700">Difficulty</label>
+                <label htmlFor="difficulty" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Difficulty</label>
                 <select
                   id="difficulty"
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
                   value={config.difficulty}
                   onChange={(e) => setConfig({...config, difficulty: e.target.value})}
                 >
@@ -251,10 +251,10 @@ export default function CreateTest() {
               </div>
 
               <div>
-                <label htmlFor="year" className="block text-sm font-medium text-slate-700">Exam Year</label>
+                <label htmlFor="year" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Exam Year</label>
                 <select
                   id="year"
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
                   value={config.year}
                   onChange={(e) => setConfig({...config, year: e.target.value})}
                 >
@@ -264,10 +264,10 @@ export default function CreateTest() {
               </div>
 
               <div>
-                <label htmlFor="status" className="block text-sm font-medium text-slate-700">Question Status</label>
+                <label htmlFor="status" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Question Status</label>
                 <select
                   id="status"
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
                   value={config.status}
                   onChange={(e) => setConfig({...config, status: e.target.value as any})}
                 >
@@ -280,10 +280,10 @@ export default function CreateTest() {
               </div>
 
               <div>
-                <label htmlFor="count" className="block text-sm font-medium text-slate-700">Number of Questions</label>
+                <label htmlFor="count" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Number of Questions</label>
                 <select
                   id="count"
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-uw-blue focus:border-uw-blue sm:text-sm rounded-md border"
                   value={config.count}
                   onChange={(e) => setConfig({...config, count: parseInt(e.target.value)})}
                 >
@@ -296,15 +296,18 @@ export default function CreateTest() {
                   <option value={80}>80 Questions</option>
                   <option value={100}>100 Questions</option>
                   <option value={120}>120 Questions</option>
+                  <option value={150}>150 Questions</option>
+                  <option value={200}>200 Questions</option>
+                  <option value={240}>240 Questions</option>
                 </select>
               </div>
             </div>
 
-            <div className="pt-6 border-t border-slate-200">
+            <div className="pt-6 border-t border-slate-200 dark:border-slate-700">
               <button
                 onClick={startPractice}
                 disabled={loading}
-                className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-uw-blue hover:bg-uw-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uw-blue ${
+                className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-uw-blue hover:bg-uw-blue-hover dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uw-blue dark:focus:ring-offset-slate-800 ${
                   loading ? 'opacity-75 cursor-not-allowed' : ''
                 }`}
               >

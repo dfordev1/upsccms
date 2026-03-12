@@ -121,47 +121,47 @@ export default function UploadCSV() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-uw-navy">Upload Questions</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-uw-navy dark:text-slate-100">Upload Questions</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Upload a CSV file containing your UPSC CMS questions.
         </p>
       </div>
 
-      <div className="bg-white shadow rounded-lg border border-slate-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 shadow rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="p-6">
           {error && (
-            <div className="mb-6 rounded-md bg-red-50 p-4">
+            <div className="mb-6 rounded-md bg-red-50 dark:bg-red-900/30 p-4">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <AlertCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">{error}</h3>
+                  <h3 className="text-sm font-medium text-red-800 dark:text-red-400">{error}</h3>
                 </div>
               </div>
             </div>
           )}
 
           {success && (
-            <div className="mb-6 rounded-md bg-green-50 p-4">
+            <div className="mb-6 rounded-md bg-green-50 dark:bg-green-900/30 p-4">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <CheckCircle className="h-5 w-5 text-green-400" aria-hidden="true" />
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-green-800">{success}</h3>
+                  <h3 className="text-sm font-medium text-green-800 dark:text-green-400">{success}</h3>
                 </div>
               </div>
             </div>
           )}
 
-          <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-md">
+          <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 dark:border-slate-600 border-dashed rounded-md">
             <div className="space-y-1 text-center">
-              <FileText className="mx-auto h-12 w-12 text-slate-400" />
-              <div className="flex text-sm text-slate-600 justify-center">
+              <FileText className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500" />
+              <div className="flex text-sm text-slate-600 dark:text-slate-400 justify-center">
                 <label
                   htmlFor="file-upload"
-                  className="relative cursor-pointer bg-white rounded-md font-medium text-uw-blue hover:text-uw-blue focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+                  className="relative cursor-pointer bg-white dark:bg-slate-800 rounded-md font-medium text-uw-blue dark:text-blue-400 hover:text-uw-blue-hover dark:hover:text-blue-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-uw-blue dark:focus-within:ring-offset-slate-800"
                 >
                   <span>Upload a file</span>
                   <input
@@ -176,23 +176,23 @@ export default function UploadCSV() {
                 </label>
                 <p className="pl-1">or drag and drop</p>
               </div>
-              <p className="text-xs text-slate-500">CSV files only</p>
+              <p className="text-xs text-slate-500 dark:text-slate-500">CSV files only</p>
             </div>
           </div>
 
           {file && (
-            <div className="mt-4 flex items-center justify-between p-4 bg-slate-50 rounded-md border border-slate-200">
+            <div className="mt-4 flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-md border border-slate-200 dark:border-slate-600">
               <div className="flex items-center">
-                <FileText className="h-6 w-6 text-uw-blue mr-3" />
-                <span className="text-sm font-medium text-uw-navy">{file.name}</span>
-                <span className="ml-2 text-xs text-slate-500">
+                <FileText className="h-6 w-6 text-uw-blue dark:text-blue-400 mr-3" />
+                <span className="text-sm font-medium text-uw-navy dark:text-slate-200">{file.name}</span>
+                <span className="ml-2 text-xs text-slate-500 dark:text-slate-400">
                   ({(file.size / 1024).toFixed(2)} KB)
                 </span>
               </div>
               <button
                 onClick={() => setFile(null)}
                 disabled={loading}
-                className="text-sm text-red-600 hover:text-red-800 disabled:opacity-50"
+                className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 disabled:opacity-50"
               >
                 Remove
               </button>
@@ -201,13 +201,13 @@ export default function UploadCSV() {
 
           {loading && (
             <div className="mt-6">
-              <div className="flex justify-between text-sm font-medium text-uw-navy mb-1">
+              <div className="flex justify-between text-sm font-medium text-uw-navy dark:text-slate-200 mb-1">
                 <span>Uploading...</span>
                 <span>{progress}%</span>
               </div>
-              <div className="w-full bg-slate-200 rounded-full h-2.5">
+              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
                 <div
-                  className="bg-uw-blue h-2.5 rounded-full transition-all duration-300"
+                  className="bg-uw-blue dark:bg-blue-500 h-2.5 rounded-full transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
@@ -218,7 +218,7 @@ export default function UploadCSV() {
             <button
               onClick={handleUpload}
               disabled={!file || loading}
-              className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-uw-blue hover:bg-uw-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uw-blue ${
+              className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-uw-blue hover:bg-uw-blue-hover dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uw-blue dark:focus:ring-offset-slate-800 ${
                 (!file || loading) ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
@@ -238,13 +238,13 @@ export default function UploadCSV() {
         </div>
       </div>
 
-      <div className="mt-8 bg-white shadow rounded-lg border border-slate-200 p-6">
-        <h2 className="text-lg font-medium text-uw-navy mb-4">CSV Format Requirements</h2>
-        <p className="text-sm text-slate-600 mb-4">
+      <div className="mt-8 bg-white dark:bg-slate-800 shadow rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+        <h2 className="text-lg font-medium text-uw-navy dark:text-slate-100 mb-4">CSV Format Requirements</h2>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
           Your CSV file must include the following headers exactly as written:
         </p>
-        <div className="bg-slate-50 rounded-md p-4 overflow-x-auto">
-          <code className="text-xs text-slate-800 whitespace-nowrap">
+        <div className="bg-slate-50 dark:bg-slate-900 rounded-md p-4 overflow-x-auto">
+          <code className="text-xs text-slate-800 dark:text-slate-300 whitespace-nowrap">
             exam_year,paper_number,question_number,stem,difficulty,explanation,educational_objective,subject,system,topic,subtopic,choice_1,choice_2,choice_3,choice_4,correct_answer,choice_1_explanation,choice_2_explanation,choice_3_explanation,choice_4_explanation
           </code>
         </div>

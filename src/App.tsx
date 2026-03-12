@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './lib/AuthContext';
+import { ThemeProvider } from './lib/ThemeContext';
 
 // Pages
 import Login from './pages/Login';
@@ -32,28 +33,30 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          
-          {/* Full screen test interface */}
-          <Route path="/test/:id" element={<ProtectedRoute><TestInterface /></ProtectedRoute>} />
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            
+            {/* Full screen test interface */}
+            <Route path="/test/:id" element={<ProtectedRoute><TestInterface /></ProtectedRoute>} />
 
-          {/* Layout wrapped routes */}
-          <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-            <Route index element={<Dashboard />} />
-            <Route path="questions" element={<QuestionBank />} />
-            <Route path="upload" element={<UploadCSV />} />
-            <Route path="test/create" element={<CreateTest />} />
-            <Route path="test/history" element={<TestHistory />} />
-            <Route path="analytics" element={<Analytics />} />
-            <Route path="flashcards" element={<Flashcards />} />
-            <Route path="pyq-analysis" element={<PYQAnalysis />} />
-          </Route>
-        </Routes>
-      </Router>
-    </AuthProvider>
+            {/* Layout wrapped routes */}
+            <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+              <Route index element={<Dashboard />} />
+              <Route path="questions" element={<QuestionBank />} />
+              <Route path="upload" element={<UploadCSV />} />
+              <Route path="test/create" element={<CreateTest />} />
+              <Route path="test/history" element={<TestHistory />} />
+              <Route path="analytics" element={<Analytics />} />
+              <Route path="flashcards" element={<Flashcards />} />
+              <Route path="pyq-analysis" element={<PYQAnalysis />} />
+            </Route>
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

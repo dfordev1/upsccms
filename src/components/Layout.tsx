@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext';
+import { useTheme } from '../lib/ThemeContext';
 import { 
   LayoutDashboard, 
   Database, 
@@ -12,11 +13,14 @@ import {
   PieChart,
   Layers,
   Activity,
-  History
+  History,
+  Moon,
+  Sun
 } from 'lucide-react';
 
 export default function Layout() {
   const { signOut, user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
@@ -32,12 +36,15 @@ export default function Layout() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex transition-colors duration-200">
       {/* Sidebar for desktop */}
-      <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-uw-navy">
+      <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-uw-navy dark:bg-slate-950 border-r border-transparent dark:border-slate-800">
         <div className="flex-1 flex flex-col min-h-0">
-          <div className="flex items-center h-16 flex-shrink-0 px-4 bg-[#061020]">
+          <div className="flex items-center justify-between h-16 flex-shrink-0 px-4 bg-[#061020] dark:bg-black">
             <h1 className="text-xl font-bold text-white tracking-tight">UPSC CMS Prep</h1>
+            <button onClick={toggleTheme} className="text-slate-400 hover:text-white transition-colors">
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
           </div>
           <div className="flex-1 flex flex-col overflow-y-auto">
             <nav className="flex-1 px-2 py-4 space-y-1">
@@ -91,14 +98,19 @@ export default function Layout() {
       </div>
 
       {/* Mobile header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-10 bg-uw-navy h-16 flex items-center justify-between px-4">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-10 bg-uw-navy dark:bg-slate-950 h-16 flex items-center justify-between px-4 border-b border-transparent dark:border-slate-800">
         <h1 className="text-xl font-bold text-white tracking-tight">UPSC CMS Prep</h1>
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="text-slate-300 hover:text-white"
-        >
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        <div className="flex items-center space-x-4">
+          <button onClick={toggleTheme} className="text-slate-300 hover:text-white">
+            {theme === 'dark' ? <Sun size={24} /> : <Moon size={24} />}
+          </button>
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="text-slate-300 hover:text-white"
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}

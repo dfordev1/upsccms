@@ -79,8 +79,8 @@ export default function Dashboard() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-uw-navy">Dashboard</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-uw-navy dark:text-slate-100">Dashboard</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Welcome back! Here's an overview of your question bank and recent activity.
         </p>
       </div>
@@ -88,13 +88,13 @@ export default function Dashboard() {
       {loading ? (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white overflow-hidden shadow rounded-lg animate-pulse">
+            <div key={i} className="bg-white dark:bg-slate-800 overflow-hidden shadow rounded-lg animate-pulse">
               <div className="p-5">
                 <div className="flex items-center">
-                  <div className="w-12 h-12 bg-slate-200 rounded-md"></div>
+                  <div className="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
                   <div className="ml-5 w-full">
-                    <div className="h-4 bg-slate-200 rounded w-1/2 mb-2"></div>
-                    <div className="h-6 bg-slate-200 rounded w-1/3"></div>
+                    <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mb-2"></div>
+                    <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/3"></div>
                   </div>
                 </div>
               </div>
@@ -104,7 +104,7 @@ export default function Dashboard() {
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
           {statCards.map((item) => (
-            <div key={item.name} className="bg-white overflow-hidden shadow rounded-lg border border-slate-100">
+            <div key={item.name} className="bg-white dark:bg-slate-800 overflow-hidden shadow rounded-lg border border-slate-100 dark:border-slate-700">
               <div className="p-5">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
@@ -114,9 +114,9 @@ export default function Dashboard() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-slate-500 truncate">{item.name}</dt>
+                      <dt className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">{item.name}</dt>
                       <dd>
-                        <div className="text-2xl font-semibold text-uw-navy">{item.value}</div>
+                        <div className="text-2xl font-semibold text-uw-navy dark:text-slate-100">{item.value}</div>
                       </dd>
                     </dl>
                   </div>
@@ -128,37 +128,37 @@ export default function Dashboard() {
       )}
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <div className="bg-white shadow rounded-lg border border-slate-100 p-6">
-          <h2 className="text-lg font-medium text-uw-navy mb-4">Quick Actions</h2>
+        <div className="bg-white dark:bg-slate-800 shadow rounded-lg border border-slate-100 dark:border-slate-700 p-6">
+          <h2 className="text-lg font-medium text-uw-navy dark:text-slate-100 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Link
               to="/test/create"
-              className="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-uw-blue hover:bg-uw-blue-hover shadow-sm"
+              className="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-uw-blue hover:bg-uw-blue-hover dark:bg-blue-600 dark:hover:bg-blue-700 shadow-sm"
             >
               <BrainCircuit className="mr-2 h-5 w-5" />
               Create Test
             </Link>
             <Link
               to="/upload"
-              className="flex items-center justify-center px-4 py-3 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 shadow-sm"
+              className="flex items-center justify-center px-4 py-3 border border-slate-300 dark:border-slate-600 text-sm font-medium rounded-md text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm"
             >
-              <Upload className="mr-2 h-5 w-5 text-slate-400" />
+              <Upload className="mr-2 h-5 w-5 text-slate-400 dark:text-slate-500" />
               Upload CSV
             </Link>
           </div>
         </div>
         
-        <div className="bg-white shadow rounded-lg border border-slate-100 p-6 flex flex-col">
+        <div className="bg-white dark:bg-slate-800 shadow rounded-lg border border-slate-100 dark:border-slate-700 p-6 flex flex-col">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-medium text-uw-navy">Recent Tests</h2>
-            <Link to="/test/history" className="text-sm text-uw-blue hover:text-uw-blue-hover font-medium">
+            <h2 className="text-lg font-medium text-uw-navy dark:text-slate-100">Recent Tests</h2>
+            <Link to="/test/history" className="text-sm text-uw-blue dark:text-blue-400 hover:text-uw-blue-hover dark:hover:text-blue-300 font-medium">
               View All
             </Link>
           </div>
           {recentTests.length === 0 ? (
             <div className="text-center py-6">
-              <p className="text-sm text-slate-500">No recent tests found.</p>
-              <Link to="/test/create" className="mt-2 inline-block text-sm text-uw-blue hover:text-uw-blue-hover font-medium">
+              <p className="text-sm text-slate-500 dark:text-slate-400">No recent tests found.</p>
+              <Link to="/test/create" className="mt-2 inline-block text-sm text-uw-blue dark:text-blue-400 hover:text-uw-blue-hover dark:hover:text-blue-300 font-medium">
                 Start your first test &rarr;
               </Link>
             </div>
@@ -168,30 +168,30 @@ export default function Dashboard() {
                 <Link 
                   key={test.id} 
                   to={`/test/${test.id}`}
-                  className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                 >
                   <div className="flex items-center">
                     {test.status === 'completed' ? (
-                      <CheckCircle className="h-5 w-5 text-uw-green mr-3" />
+                      <CheckCircle className="h-5 w-5 text-uw-green dark:text-green-400 mr-3" />
                     ) : (
-                      <PlayCircle className="h-5 w-5 text-uw-blue mr-3" />
+                      <PlayCircle className="h-5 w-5 text-uw-blue dark:text-blue-400 mr-3" />
                     )}
                     <div>
-                      <p className="text-sm font-medium text-uw-navy">
+                      <p className="text-sm font-medium text-uw-navy dark:text-slate-200">
                         {test.mode === 'tutor' ? 'Tutor Mode' : test.mode === 'auto' ? 'Auto Solver' : 'Timed Mode'} - {test.questions.length} Qs
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         {new Date(test.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div>
                     {test.status === 'completed' ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-uw-green-bg text-uw-green">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-uw-green-bg dark:bg-green-900/30 text-uw-green dark:text-green-400">
                         {test.score}%
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-uw-amber">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-uw-amber dark:text-yellow-400">
                         In Progress
                       </span>
                     )}
