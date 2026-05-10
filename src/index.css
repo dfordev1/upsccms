@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant sepia (&:where(.theme-sepia, .theme-sepia *));
+@custom-variant gray-theme (&:where(.theme-gray, .theme-gray *));
 
 @theme {
   --color-uw-navy: #0A192F;
@@ -13,6 +15,27 @@
   --color-uw-amber: #FFB300;
   --color-uw-gray: #F5F5F5;
   --color-uw-gray-dark: #E0E0E0;
+  --color-uw-sepia: #F4ECD8;
+  --color-uw-sepia-text: #5B4636;
+}
+
+/* Sepia theme base */
+.theme-sepia {
+  background-color: #F4ECD8;
+  color: #5B4636;
+}
+.theme-sepia .uw-panel {
+  background-color: #FBF5E6;
+  color: #5B4636;
+}
+
+/* Gray theme base */
+.theme-gray {
+  background-color: #E5E7EB;
+  color: #1F2937;
+}
+.theme-gray .uw-panel {
+  background-color: #F3F4F6;
 }
 
 @layer utilities {
@@ -28,6 +51,28 @@
   .rotate-y-180 {
     transform: rotateY(180deg);
   }
+  .animate-slide-in-right {
+    animation: slideInRight 0.25s ease-out;
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* User highlight styling (applied by highlighter tool) */
+.uw-highlight {
+  background-color: var(--uw-highlight-color, #FDE047);
+  padding: 0 1px;
+  border-radius: 2px;
 }
 
 .html-content-wrapper p {
