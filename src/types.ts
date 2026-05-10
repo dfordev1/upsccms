@@ -42,4 +42,7 @@ export interface TestSession {
   total_time?: number;
   auto_question_time?: number;
   auto_answer_time?: number;
+  bookmarked?: string[]; // question IDs
+  notes?: Record<string, string>; // question id -> note text
+  highlights?: Record<string, string[]>; // question id -> array of highlighted text snippets
 }
