@@ -145,12 +145,12 @@ export default function TestHistory() {
                     </div>
                     <div className="ml-5 flex-shrink-0 flex items-center space-x-4">
                       <Link
-                        to={`/test/${session.id}`}
+                        to={isCompleted ? `/test/results/${session.id}` : `/test/${session.id}`}
                         className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white ${
                           isCompleted ? 'bg-uw-blue hover:bg-uw-blue-hover dark:bg-blue-600 dark:hover:bg-blue-700' : 'bg-uw-amber hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700'
                         }`}
                       >
-                        {isCompleted ? 'Review' : 'Resume'}
+                        {isCompleted ? 'Results' : 'Resume'}
                       </Link>
                       <button
                         onClick={() => handleDelete(session.id)}
