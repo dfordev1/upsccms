@@ -27,6 +27,7 @@ import {
   StickyNote,
   Settings as SettingsIcon,
   Zap,
+  MessageSquare,
 } from 'lucide-react';
 import Calculator from '../components/Calculator';
 import LabValues from '../components/LabValues';
@@ -807,91 +808,103 @@ function TestInterface() {
         </div>
       </div>
 
-      {/* ===== Bottom Navigation Grid ===== */}
-      <div className="bg-slate-100 dark:bg-slate-900 border-t border-slate-300 dark:border-slate-800 p-2 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
+      {/* ===== UWorld-style Bottom Bar ===== */}
+      <div className="bg-slate-800 dark:bg-slate-950 border-t border-slate-700 dark:border-slate-800 flex items-center justify-between px-4 py-2">
+        {/* Left: End + Suspend */}
+        <div className="flex items-center space-x-6">
+          {!isReviewMode ? (
+            <button
+              onClick={() => handleEndBlock()}
+              className="flex flex-col items-center text-slate-300 hover:text-white transition-colors group"
+              title="End Block"
+            >
+              <div className="w-9 h-9 rounded-full border-2 border-slate-400 group-hover:border-white flex items-center justify-center mb-0.5">
+                <Square size={14} className="text-slate-400 group-hover:text-white" />
+              </div>
+              <span className="text-[11px] font-medium">End</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/')}
+              className="flex flex-col items-center text-slate-300 hover:text-white transition-colors group"
+              title="Exit Review"
+            >
+              <div className="w-9 h-9 rounded-full border-2 border-slate-400 group-hover:border-white flex items-center justify-center mb-0.5">
+                <Square size={14} className="text-slate-400 group-hover:text-white" />
+              </div>
+              <span className="text-[11px] font-medium">End</span>
+            </button>
+          )}
+
           <button
             onClick={handleSuspend}
-            className="flex items-center px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700"
+            className="flex flex-col items-center text-slate-300 hover:text-white transition-colors group"
+            title="Suspend"
           >
-            <Pause size={14} className="mr-1.5" /> Suspend
+            <div className="w-9 h-9 rounded-full border-2 border-slate-400 group-hover:border-white flex items-center justify-center mb-0.5">
+              <Pause size={14} className="text-slate-400 group-hover:text-white" />
+            </div>
+            <span className="text-[11px] font-medium">Suspend</span>
           </button>
+
           {session.mode === 'auto' && !isReviewMode && (
             <button
               onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-              className={`flex items-center px-3 py-1.5 text-sm font-medium text-white rounded ${
-                isAutoPlaying ? 'bg-uw-amber hover:bg-yellow-600' : 'bg-uw-green hover:bg-green-700'
-              }`}
+              className="flex flex-col items-center text-slate-300 hover:text-white transition-colors group"
+              title={isAutoPlaying ? 'Pause Auto' : 'Resume Auto'}
             >
-              {isAutoPlaying ? <Pause size={14} className="mr-1.5" /> : <Play size={14} className="mr-1.5" />}
-              {isAutoPlaying ? 'Pause' : 'Resume'}
-            </button>
-          )}
-          {!isReviewMode && (
-            <button
-              onClick={() => handleEndBlock()}
-              className="flex items-center px-3 py-1.5 text-sm font-medium text-white bg-red-600 border border-transparent rounded hover:bg-red-700"
-            >
-              <Square size={14} className="mr-1.5" /> End Block
+              <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center mb-0.5 ${
+                isAutoPlaying ? 'border-uw-amber' : 'border-uw-green'
+              }`}>
+                {isAutoPlaying ? <Pause size={14} className="text-uw-amber" /> : <Play size={14} className="text-uw-green" />}
+              </div>
+              <span className="text-[11px] font-medium">{isAutoPlaying ? 'Pause' : 'Resume'}</span>
             </button>
           )}
         </div>
 
-        <div className="flex-1 overflow-x-auto mx-4 flex items-center space-x-1 py-1">
-          {session.questions.map((q, idx) => {
-            const isCurrent = idx === currentIndex;
-            const isAns = !!answers[q.id];
-            const isMarked = marked.includes(q.id);
-            const isBM = bookmarked.includes(q.id);
+        {/* Center: Feedback + Score (review mode) */}
+        <div className="flex items-center space-x-6">
+          <button
+            className="flex flex-col items-center text-slate-300 hover:text-white transition-colors group"
+            title="Feedback"
+            onClick={() => {/* Future: open feedback modal */}}
+          >
+            <div className="w-9 h-9 rounded-full border-2 border-slate-400 group-hover:border-white flex items-center justify-center mb-0.5">
+              <MessageSquare size={14} className="text-slate-400 group-hover:text-white" />
+            </div>
+            <span className="text-[11px] font-medium">Feedback</span>
+          </button>
 
-            let bgClass =
-              'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300';
-            if (isCurrent) bgClass = 'bg-uw-blue dark:bg-blue-600 border-uw-blue dark:border-blue-600 text-white';
-            else if (isReviewMode) {
-              if (answers[q.id] === q.correct_answer)
-                bgClass = 'bg-uw-green-bg dark:bg-green-900/50 border-uw-green dark:border-green-600 text-uw-green dark:text-green-400';
-              else if (isAns)
-                bgClass = 'bg-uw-red-bg dark:bg-red-900/50 border-uw-red dark:border-red-600 text-uw-red dark:text-red-400';
-            } else if (isAns) {
-              bgClass =
-                'bg-slate-300 dark:bg-slate-700 border-slate-400 dark:border-slate-600 text-slate-800 dark:text-slate-200';
-            }
-
-            return (
-              <button
-                key={q.id}
-                onClick={() => setCurrentIndex(idx)}
-                className={`relative flex-shrink-0 w-8 h-8 flex items-center justify-center text-xs font-medium border rounded-sm transition-colors ${bgClass}`}
-              >
-                {idx + 1}
-                {isMarked && (
-                  <div className="absolute -top-1 -right-1">
-                    <Zap size={10} className="text-uw-amber" fill="currentColor" />
-                  </div>
-                )}
-                {isBM && (
-                  <div className="absolute -top-1 -left-1">
-                    <Bookmark size={10} className="text-uw-blue" fill="currentColor" />
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {isReviewMode && (
-          <div className="flex items-center space-x-3 text-sm font-medium">
-            <span className="text-slate-700 dark:text-slate-300">
-              Score: <span className="text-uw-blue dark:text-blue-400 font-bold">{session.score}%</span>
+          {isReviewMode && (
+            <span className="text-sm font-semibold text-white">
+              Score: <span className="text-uw-blue">{session.score}%</span>
             </span>
-            <button
-              onClick={() => navigate('/')}
-              className="px-3 py-1.5 bg-uw-blue text-white rounded hover:bg-uw-blue-hover"
-            >
-              Exit Review
-            </button>
-          </div>
-        )}
+          )}
+        </div>
+
+        {/* Right: Previous + Next */}
+        <div className="flex items-center space-x-6">
+          <button
+            onClick={handlePrev}
+            disabled={currentIndex === 0}
+            className="flex items-center text-slate-300 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed group"
+            title="Previous"
+          >
+            <ChevronLeft size={20} className="mr-1" />
+            <span className="text-sm font-medium">Previous</span>
+          </button>
+
+          <button
+            onClick={handleNext}
+            disabled={currentIndex === session.questions.length - 1}
+            className="flex items-center text-slate-300 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed group"
+            title="Next"
+          >
+            <span className="text-sm font-medium">Next</span>
+            <ChevronRight size={20} className="ml-1" />
+          </button>
+        </div>
       </div>
 
       {/* ===== Modals & Panels ===== */}
