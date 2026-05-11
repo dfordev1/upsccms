@@ -699,6 +699,9 @@ function TestInterface() {
                       {/* Choice text */}
                       <span className={`${currentFontSize.choice} ${textClass} content-html flex-1`}>
                         {renderContent(choiceText)}
+                        {showExplanation && typeof choicePercent === 'number' && (
+                          <span className="ml-1 text-slate-500 dark:text-slate-400">({choicePercent}%)</span>
+                        )}
                       </span>
 
                       {/* Percent in parentheses (shown in review) */}
@@ -982,7 +985,7 @@ function ExplanationBlock({
 
       {/* Choice Explanations */}
       <div className={`space-y-3 mb-6 ${fontSize.choice}`}>
-        {[1, 2, 3, 4].map(num => {
+        {[1, 2, 3, 4, 5].map(num => {
           const choiceExp = question[`choice_${num}_explanation` as keyof Question] as string;
           if (!choiceExp) return null;
 
