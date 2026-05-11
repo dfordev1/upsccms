@@ -40,14 +40,6 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            
-            {/* Full screen test interface */}
-            <Route path="/test/:id" element={<ProtectedRoute><TestInterface /></ProtectedRoute>} />
-            
-            {/* Test results (layout-wrapped) */}
-            <Route path="/test/results/:id" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-              <Route index element={<TestResults />} />
-            </Route>
 
             {/* Layout wrapped routes */}
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
@@ -56,10 +48,14 @@ export default function App() {
               <Route path="upload" element={<UploadCSV />} />
               <Route path="test/create" element={<CreateTest />} />
               <Route path="test/history" element={<TestHistory />} />
+              <Route path="test/results/:id" element={<TestResults />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="flashcards" element={<Flashcards />} />
               <Route path="pyq-analysis" element={<PYQAnalysis />} />
             </Route>
+
+            {/* Full screen test interface (must be after /test/results/:id to avoid conflict) */}
+            <Route path="/test/:id" element={<ProtectedRoute><TestInterface /></ProtectedRoute>} />
           </Routes>
         </Router>
       </AuthProvider>
