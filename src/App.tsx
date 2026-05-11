@@ -56,10 +56,14 @@ export default function App() {
               <Route path="upload" element={<UploadCSV />} />
               <Route path="test/create" element={<CreateTest />} />
               <Route path="test/history" element={<TestHistory />} />
+              <Route path="test/results/:id" element={<TestResults />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="flashcards" element={<Flashcards />} />
               <Route path="pyq-analysis" element={<PYQAnalysis />} />
             </Route>
+
+            {/* Full screen test interface (must be after /test/results/:id to avoid conflict) */}
+            <Route path="/test/:id" element={<ProtectedRoute><TestInterface /></ProtectedRoute>} />
           </Routes>
         </Router>
       </AuthProvider>
