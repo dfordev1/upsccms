@@ -16,11 +16,13 @@ export interface Question {
   choice_2: string;
   choice_3: string;
   choice_4: string;
+  choice_5?: string;
   correct_answer: number;
   choice_1_explanation: string;
   choice_2_explanation: string;
   choice_3_explanation: string;
   choice_4_explanation: string;
+  choice_5_explanation?: string;
   created_at?: string;
 }
 
