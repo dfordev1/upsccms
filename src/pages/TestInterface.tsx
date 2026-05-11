@@ -11,6 +11,7 @@ import {
   Flag,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Pause,
   Square,
   Strikethrough,
@@ -188,8 +189,11 @@ function TestInterface() {
       setCurrentIndex(0);
 
       await saveProgress(updates);
+      
+      // Navigate to results page
+      navigate(`/test/results/${id}`);
     },
-    [session, answers, marked, crossedOut, bookmarked, notes, timeSpent, saveProgress]
+    [session, answers, marked, crossedOut, bookmarked, notes, timeSpent, saveProgress, navigate, id]
   );
 
   // Fetch session
@@ -517,10 +521,10 @@ function TestInterface() {
         theme === 'sepia' ? 'theme-sepia' : ''
       } ${theme === 'gray' ? 'theme-gray' : ''}`}
     >
-      {/* ===== UWorld-style Top Toolbar ===== */}
-      <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-3 py-2 z-10">
+      {/* ===== UWorld-style Top Toolbar (dark charcoal bar) ===== */}
+      <div className="bg-[#2D3B45] flex items-center justify-between px-3 py-1.5 z-10">
         {/* Left toolbar icons */}
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-0.5">
           <ToolbarButton
             active={isBookmarked}
             onClick={toggleBookmark}
@@ -536,7 +540,7 @@ function TestInterface() {
           >
             <div className="relative">
               <Zap size={22} fill={marked.includes(currentQ.id) ? 'currentColor' : 'none'} />
-              <span className="absolute -bottom-1 -right-1 text-[9px] font-bold bg-white dark:bg-slate-900 rounded-full px-1">
+              <span className="absolute -bottom-1 -right-1 text-[9px] font-bold text-white bg-[#2D3B45] rounded-full px-0.5">
                 {marked.length}
               </span>
             </div>
@@ -571,44 +575,16 @@ function TestInterface() {
           </ToolbarButton>
         </div>
 
-        {/* Center: Mode + Timer + Question counter */}
-        <div className="flex items-center space-x-4">
-          <div className="hidden md:flex flex-col items-end leading-tight">
-            <span className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-semibold">
-              {session.mode === 'tutor' ? 'Tutor' : session.mode === 'auto' ? 'Auto Solver' : 'Timed'}
-            </span>
-            {settings.showTimer && (
-              <span className="text-sm font-mono font-bold text-slate-700 dark:text-slate-200">
-                {session.mode === 'auto' && !isReviewMode
-                  ? `${autoState === 'question' ? 'Q' : 'E'} ${formatTime(autoTimeRemaining)}`
-                  : formatTime(timeRemaining)}
-              </span>
-            )}
-          </div>
-
-          <button
-            onClick={handlePrev}
-            disabled={currentIndex === 0}
-            className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-30"
-          >
-            <ChevronLeft size={22} />
-          </button>
-
-          <span className="text-base font-medium text-slate-700 dark:text-slate-200 tabular-nums">
+        {/* Center: Question counter with chevron */}
+        <div className="flex items-center space-x-1">
+          <span className="text-base font-medium text-white tabular-nums">
             {currentIndex + 1}/{session.questions.length}
           </span>
-
-          <button
-            onClick={handleNext}
-            disabled={currentIndex === session.questions.length - 1}
-            className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-30"
-          >
-            <ChevronRight size={22} />
-          </button>
+          <ChevronDown size={16} className="text-white/70" />
         </div>
 
-        {/* Right: Settings */}
-        <div className="flex items-center space-x-1">
+        {/* Right: Fullscreen, Help, Settings, Timer */}
+        <div className="flex items-center space-x-0.5">
           <ToolbarButton
             onClick={() => updateSettings({ splitScreen: !settings.splitScreen })}
             active={settings.splitScreen}
@@ -621,13 +597,21 @@ function TestInterface() {
             <SettingsIcon size={22} />
           </ToolbarButton>
 
-          <button
+          <ToolbarButton
             onClick={() => navigate('/')}
-            className="ml-2 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
             title="Exit"
           >
-            <X size={20} />
-          </button>
+            <X size={22} />
+          </ToolbarButton>
+
+          {/* Timer (far right) */}
+          {settings.showTimer && (
+            <span className="ml-3 text-base font-mono font-medium text-white tabular-nums">
+              {session.mode === 'auto' && !isReviewMode
+                ? formatTime(autoTimeRemaining)
+                : formatTime(timeRemaining)}
+            </span>
+          )}
         </div>
       </div>
 
@@ -650,7 +634,7 @@ function TestInterface() {
               </div>
 
               {/* Choices */}
-              <div className="space-y-2 mb-6">
+              <div className="space-y-3 mb-6">
                 {[1, 2, 3, 4].map(num => {
                   const choiceText = currentQ[`choice_${num}` as keyof Question] as string;
                   if (!choiceText) return null;
@@ -659,29 +643,24 @@ function TestInterface() {
                   const isSelected = answers[currentQ.id] === num;
                   const isCorrect = currentQ.correct_answer === num;
 
-                  // Compute per-choice picked percent from aggregate stats (approximation)
                   let choicePercent: number | undefined;
                   if (showExplanation && aggregate && aggregate.total > 0) {
-                    // This is a rough approximation; real picking data isn't tracked yet
                     if (isCorrect) choicePercent = percentCorrect;
                   }
 
                   let rowClass = 'hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer';
                   let textClass = 'text-slate-800 dark:text-slate-200';
-                  let icon = null;
-                  let leftMark = null;
+                  let leftIcon = null;
 
                   if (showExplanation) {
                     rowClass = 'cursor-default';
                     if (isCorrect) {
-                      textClass = 'text-uw-green dark:text-green-400 font-medium';
-                      leftMark = <CheckCircle className="h-5 w-5 text-uw-green dark:text-green-400" />;
+                      leftIcon = <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0" />;
                     } else if (isSelected) {
-                      textClass = 'text-uw-red dark:text-red-400';
-                      icon = <XCircle className="h-5 w-5 text-uw-red dark:text-red-400 ml-auto" />;
+                      textClass = 'text-slate-800 dark:text-slate-200';
                     }
                   } else if (isSelected) {
-                    rowClass = 'bg-blue-50 dark:bg-blue-900/20';
+                    rowClass = 'cursor-pointer';
                   }
 
                   if (isCrossedOut && !showExplanation) {
@@ -692,42 +671,44 @@ function TestInterface() {
                     <div
                       key={num}
                       onClick={() => handleAnswer(num)}
-                      className={`group relative flex items-center py-2 px-2 rounded transition-colors ${rowClass}`}
+                      className={`group flex items-center py-1.5 px-1 rounded transition-colors ${rowClass}`}
                     >
-                      {/* Left correct checkmark */}
-                      <div className="w-6 flex-shrink-0 flex items-center justify-center">
-                        {leftMark}
+                      {/* Left: green check or spacer */}
+                      <div className="w-7 flex-shrink-0 flex items-center justify-center">
+                        {leftIcon}
                       </div>
 
-                      {/* Radio indicator */}
+                      {/* Radio circle */}
                       <div
-                        className={`flex-shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center mr-3 ${
-                          isSelected
-                            ? 'border-uw-blue bg-uw-blue dark:border-blue-500 dark:bg-blue-500'
+                        className={`flex-shrink-0 h-6 w-6 rounded-full border-2 flex items-center justify-center mr-3 ${
+                          isSelected && showExplanation && isCorrect
+                            ? 'border-sky-500 bg-sky-500'
+                            : isSelected
+                            ? 'border-sky-500 bg-sky-500'
                             : 'border-slate-400 dark:border-slate-500'
                         }`}
                       >
-                        {isSelected && <div className="h-2 w-2 rounded-full bg-white" />}
+                        {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-white" />}
                       </div>
 
-                      {/* Letter + Text */}
-                      <span className="font-semibold mr-2 text-slate-700 dark:text-slate-300">
+                      {/* Letter */}
+                      <span className="font-medium mr-2 text-slate-700 dark:text-slate-300 text-base">
                         {String.fromCharCode(64 + num)}.
                       </span>
+
+                      {/* Choice text */}
                       <span className={`${currentFontSize.choice} ${textClass} content-html flex-1`}>
                         {renderContent(choiceText)}
                       </span>
 
-                      {/* Percent picked (shown in review) */}
+                      {/* Percent in parentheses (shown in review) */}
                       {showExplanation && typeof choicePercent === 'number' && (
-                        <span className="ml-3 text-sm text-slate-500 dark:text-slate-400 font-medium">
+                        <span className="ml-2 text-sm text-slate-500 dark:text-slate-400">
                           ({choicePercent}%)
                         </span>
                       )}
 
-                      {icon}
-
-                      {/* Strikethrough button */}
+                      {/* Strikethrough button (only during test) */}
                       {!showExplanation && (
                         <button
                           onClick={e => toggleCrossOut(e, num)}
@@ -808,101 +789,67 @@ function TestInterface() {
         </div>
       </div>
 
-      {/* ===== UWorld-style Bottom Bar ===== */}
-      <div className="bg-slate-800 dark:bg-slate-950 border-t border-slate-700 dark:border-slate-800 flex items-center justify-between px-4 py-2">
-        {/* Left: End + Suspend */}
-        <div className="flex items-center space-x-6">
+      {/* ===== Bottom Navigation Bar ===== */}
+      <div className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 py-2">
+        {/* Left: End / Suspend */}
+        <div className="flex items-center space-x-4">
           {!isReviewMode ? (
             <button
               onClick={() => handleEndBlock()}
-              className="flex flex-col items-center text-slate-300 hover:text-white transition-colors group"
+              className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
               title="End Block"
             >
-              <div className="w-9 h-9 rounded-full border-2 border-slate-400 group-hover:border-white flex items-center justify-center mb-0.5">
-                <Square size={14} className="text-slate-400 group-hover:text-white" />
-              </div>
-              <span className="text-[11px] font-medium">End</span>
+              End Block
             </button>
           ) : (
             <button
-              onClick={() => navigate('/')}
-              className="flex flex-col items-center text-slate-300 hover:text-white transition-colors group"
-              title="Exit Review"
+              onClick={() => navigate(`/test/results/${id}`)}
+              className="text-sm font-medium text-uw-blue dark:text-blue-400 hover:text-uw-blue-hover transition-colors"
+              title="View Results"
             >
-              <div className="w-9 h-9 rounded-full border-2 border-slate-400 group-hover:border-white flex items-center justify-center mb-0.5">
-                <Square size={14} className="text-slate-400 group-hover:text-white" />
-              </div>
-              <span className="text-[11px] font-medium">End</span>
+              View Results
             </button>
           )}
 
-          <button
-            onClick={handleSuspend}
-            className="flex flex-col items-center text-slate-300 hover:text-white transition-colors group"
-            title="Suspend"
-          >
-            <div className="w-9 h-9 rounded-full border-2 border-slate-400 group-hover:border-white flex items-center justify-center mb-0.5">
-              <Pause size={14} className="text-slate-400 group-hover:text-white" />
-            </div>
-            <span className="text-[11px] font-medium">Suspend</span>
-          </button>
+          {!isReviewMode && (
+            <button
+              onClick={handleSuspend}
+              className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+              title="Suspend"
+            >
+              Suspend
+            </button>
+          )}
 
           {session.mode === 'auto' && !isReviewMode && (
             <button
               onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-              className="flex flex-col items-center text-slate-300 hover:text-white transition-colors group"
+              className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
               title={isAutoPlaying ? 'Pause Auto' : 'Resume Auto'}
             >
-              <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center mb-0.5 ${
-                isAutoPlaying ? 'border-uw-amber' : 'border-uw-green'
-              }`}>
-                {isAutoPlaying ? <Pause size={14} className="text-uw-amber" /> : <Play size={14} className="text-uw-green" />}
-              </div>
-              <span className="text-[11px] font-medium">{isAutoPlaying ? 'Pause' : 'Resume'}</span>
+              {isAutoPlaying ? 'Pause' : 'Resume'}
             </button>
           )}
         </div>
 
-        {/* Center: Feedback + Score (review mode) */}
-        <div className="flex items-center space-x-6">
-          <button
-            className="flex flex-col items-center text-slate-300 hover:text-white transition-colors group"
-            title="Feedback"
-            onClick={() => {/* Future: open feedback modal */}}
-          >
-            <div className="w-9 h-9 rounded-full border-2 border-slate-400 group-hover:border-white flex items-center justify-center mb-0.5">
-              <MessageSquare size={14} className="text-slate-400 group-hover:text-white" />
-            </div>
-            <span className="text-[11px] font-medium">Feedback</span>
-          </button>
-
-          {isReviewMode && (
-            <span className="text-sm font-semibold text-white">
-              Score: <span className="text-uw-blue">{session.score}%</span>
-            </span>
-          )}
-        </div>
-
         {/* Right: Previous + Next */}
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-2">
           <button
             onClick={handlePrev}
             disabled={currentIndex === 0}
-            className="flex items-center text-slate-300 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed group"
-            title="Previous"
+            className="flex items-center px-4 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronLeft size={20} className="mr-1" />
-            <span className="text-sm font-medium">Previous</span>
+            <ChevronLeft size={18} className="mr-1" />
+            Previous
           </button>
 
           <button
             onClick={handleNext}
             disabled={currentIndex === session.questions.length - 1}
-            className="flex items-center text-slate-300 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed group"
-            title="Next"
+            className="flex items-center px-4 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
-            <span className="text-sm font-medium">Next</span>
-            <ChevronRight size={20} className="ml-1" />
+            Next
+            <ChevronRight size={18} className="ml-1" />
           </button>
         </div>
       </div>
@@ -938,10 +885,10 @@ function ToolbarButton({
     <button
       onClick={onClick}
       title={title}
-      className={`flex flex-col items-center justify-center w-11 h-11 rounded-md transition-colors ${
+      className={`flex flex-col items-center justify-center w-10 h-10 rounded-md transition-colors ${
         active
-          ? 'text-uw-blue dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30'
-          : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200'
+          ? 'text-sky-400'
+          : 'text-slate-300 hover:text-white'
       }`}
     >
       {children}
