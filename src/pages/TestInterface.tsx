@@ -789,14 +789,14 @@ function TestInterface() {
         </div>
       </div>
 
-      {/* ===== Bottom Navigation Bar ===== */}
-      <div className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 py-2">
+      {/* ===== Bottom Navigation Bar (matching top bar color) ===== */}
+      <div className="bg-[#2D3B45] flex items-center justify-between px-6 py-2.5">
         {/* Left: End / Suspend */}
         <div className="flex items-center space-x-4">
           {!isReviewMode ? (
             <button
               onClick={() => handleEndBlock()}
-              className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
               title="End Block"
             >
               End Block
@@ -804,7 +804,7 @@ function TestInterface() {
           ) : (
             <button
               onClick={() => navigate(`/test/results/${id}`)}
-              className="text-sm font-medium text-uw-blue dark:text-blue-400 hover:text-uw-blue-hover transition-colors"
+              className="text-sm font-medium text-sky-400 hover:text-sky-300 transition-colors"
               title="View Results"
             >
               View Results
@@ -814,7 +814,7 @@ function TestInterface() {
           {!isReviewMode && (
             <button
               onClick={handleSuspend}
-              className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
               title="Suspend"
             >
               Suspend
@@ -824,7 +824,7 @@ function TestInterface() {
           {session.mode === 'auto' && !isReviewMode && (
             <button
               onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-              className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
               title={isAutoPlaying ? 'Pause Auto' : 'Resume Auto'}
             >
               {isAutoPlaying ? 'Pause' : 'Resume'}
@@ -837,7 +837,7 @@ function TestInterface() {
           <button
             onClick={handlePrev}
             disabled={currentIndex === 0}
-            className="flex items-center px-4 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center px-4 py-1.5 text-sm font-medium text-slate-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft size={18} className="mr-1" />
             Previous
@@ -846,7 +846,7 @@ function TestInterface() {
           <button
             onClick={handleNext}
             disabled={currentIndex === session.questions.length - 1}
-            className="flex items-center px-4 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center px-4 py-1.5 text-sm font-medium text-slate-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             Next
             <ChevronRight size={18} className="ml-1" />
