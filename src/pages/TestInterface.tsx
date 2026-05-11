@@ -188,6 +188,9 @@ function TestInterface() {
       setCurrentIndex(0);
 
       await saveProgress(updates);
+
+      // Navigate to results page
+      navigate(`/test/${id}/results`);
     },
     [session, answers, marked, crossedOut, bookmarked, notes, timeSpent, saveProgress]
   );
@@ -825,7 +828,7 @@ function TestInterface() {
             </button>
           ) : (
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate(`/test/${id}/results`)}
               className="flex flex-col items-center text-slate-300 hover:text-white transition-colors group"
               title="Exit Review"
             >

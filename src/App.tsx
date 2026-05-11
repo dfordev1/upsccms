@@ -11,6 +11,7 @@ import QuestionBank from './pages/QuestionBank';
 import UploadCSV from './pages/UploadCSV';
 import CreateTest from './pages/CreateTest';
 import TestInterface from './pages/TestInterface';
+import TestResults from './pages/TestResults';
 import TestHistory from './pages/TestHistory';
 import Analytics from './pages/Analytics';
 import Flashcards from './pages/Flashcards';
@@ -42,7 +43,7 @@ export default function App() {
             
             {/* Full screen test interface */}
             <Route path="/test/:id" element={<ProtectedRoute><TestInterface /></ProtectedRoute>} />
-
+            
             {/* Layout wrapped routes */}
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route index element={<Dashboard />} />
@@ -50,6 +51,7 @@ export default function App() {
               <Route path="upload" element={<UploadCSV />} />
               <Route path="test/create" element={<CreateTest />} />
               <Route path="test/history" element={<TestHistory />} />
+              <Route path="test/:id/results" element={<TestResults />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="flashcards" element={<Flashcards />} />
               <Route path="pyq-analysis" element={<PYQAnalysis />} />
