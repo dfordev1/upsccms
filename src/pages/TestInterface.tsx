@@ -575,60 +575,16 @@ function TestInterface() {
           </ToolbarButton>
         </div>
 
-        {/* Center: Navigation arrows + Question counter */}
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={handlePrev}
-            disabled={currentIndex === 0}
-            className="p-1 text-slate-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-          >
-            <ChevronLeft size={20} />
-          </button>
-
+        {/* Center: Question counter with chevron */}
+        <div className="flex items-center space-x-1">
           <span className="text-base font-medium text-white tabular-nums">
             {currentIndex + 1}/{session.questions.length}
           </span>
           <ChevronDown size={16} className="text-white/70" />
-
-          <button
-            onClick={handleNext}
-            disabled={currentIndex === session.questions.length - 1}
-            className="p-1 text-slate-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-          >
-            <ChevronRight size={20} />
-          </button>
         </div>
 
-        {/* Right: End/Suspend, Split, Settings, Exit, Timer */}
+        {/* Right: Fullscreen, Help, Settings, Timer */}
         <div className="flex items-center space-x-0.5">
-          {!isReviewMode && (
-            <>
-              <button
-                onClick={handleSuspend}
-                className="px-2 py-1 text-xs font-medium text-slate-300 hover:text-white transition-colors"
-                title="Suspend & Exit"
-              >
-                Suspend
-              </button>
-              <button
-                onClick={() => handleEndBlock()}
-                className="px-2 py-1 text-xs font-medium text-slate-300 hover:text-white transition-colors"
-                title="End Block"
-              >
-                End
-              </button>
-            </>
-          )}
-          {isReviewMode && (
-            <button
-              onClick={() => navigate(`/test/results/${id}`)}
-              className="px-2 py-1 text-xs font-medium text-sky-400 hover:text-sky-300 transition-colors"
-              title="View Results"
-            >
-              Results
-            </button>
-          )}
-
           <ToolbarButton
             onClick={() => updateSettings({ splitScreen: !settings.splitScreen })}
             active={settings.splitScreen}
@@ -679,7 +635,7 @@ function TestInterface() {
 
               {/* Choices */}
               <div className="space-y-3 mb-6">
-                {[1, 2, 3, 4, 5].map(num => {
+                {[1, 2, 3, 4].map(num => {
                   const choiceText = currentQ[`choice_${num}` as keyof Question] as string;
                   if (!choiceText) return null;
 
@@ -687,9 +643,8 @@ function TestInterface() {
                   const isSelected = answers[currentQ.id] === num;
                   const isCorrect = currentQ.correct_answer === num;
 
-                  // Show percentage on every choice in review mode
                   let choicePercent: number | undefined;
-                  if (showExplanation && percentCorrect !== undefined) {
+                  if (showExplanation && aggregate && aggregate.total > 0) {
                     if (isCorrect) choicePercent = percentCorrect;
                   }
 
@@ -701,6 +656,8 @@ function TestInterface() {
                     rowClass = 'cursor-default';
                     if (isCorrect) {
                       leftIcon = <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0" />;
+                    } else if (isSelected) {
+                      textClass = 'text-slate-800 dark:text-slate-200';
                     }
                   } else if (isSelected) {
                     rowClass = 'cursor-pointer';
@@ -724,7 +681,9 @@ function TestInterface() {
                       {/* Radio circle */}
                       <div
                         className={`flex-shrink-0 h-6 w-6 rounded-full border-2 flex items-center justify-center mr-3 ${
-                          isSelected
+                          isSelected && showExplanation && isCorrect
+                            ? 'border-sky-500 bg-sky-500'
+                            : isSelected
                             ? 'border-sky-500 bg-sky-500'
                             : 'border-slate-400 dark:border-slate-500'
                         }`}
@@ -737,13 +696,20 @@ function TestInterface() {
                         {String.fromCharCode(64 + num)}.
                       </span>
 
-                      {/* Choice text + percentage inline */}
+                      {/* Choice text */}
                       <span className={`${currentFontSize.choice} ${textClass} content-html flex-1`}>
                         {renderContent(choiceText)}
                         {showExplanation && typeof choicePercent === 'number' && (
                           <span className="ml-1 text-slate-500 dark:text-slate-400">({choicePercent}%)</span>
                         )}
                       </span>
+
+                      {/* Percent in parentheses (shown in review) */}
+                      {showExplanation && typeof choicePercent === 'number' && (
+                        <span className="ml-2 text-sm text-slate-500 dark:text-slate-400">
+                          ({choicePercent}%)
+                        </span>
+                      )}
 
                       {/* Strikethrough button (only during test) */}
                       {!showExplanation && (
@@ -823,6 +789,71 @@ function TestInterface() {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* ===== Bottom Navigation Bar (matching top bar color) ===== */}
+      <div className="bg-[#2D3B45] flex items-center justify-between px-6 py-2.5">
+        {/* Left: End / Suspend */}
+        <div className="flex items-center space-x-4">
+          {!isReviewMode ? (
+            <button
+              onClick={() => handleEndBlock()}
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              title="End Block"
+            >
+              End Block
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate(`/test/results/${id}`)}
+              className="text-sm font-medium text-sky-400 hover:text-sky-300 transition-colors"
+              title="View Results"
+            >
+              View Results
+            </button>
+          )}
+
+          {!isReviewMode && (
+            <button
+              onClick={handleSuspend}
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              title="Suspend"
+            >
+              Suspend
+            </button>
+          )}
+
+          {session.mode === 'auto' && !isReviewMode && (
+            <button
+              onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              title={isAutoPlaying ? 'Pause Auto' : 'Resume Auto'}
+            >
+              {isAutoPlaying ? 'Pause' : 'Resume'}
+            </button>
+          )}
+        </div>
+
+        {/* Right: Previous + Next */}
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={handlePrev}
+            disabled={currentIndex === 0}
+            className="flex items-center px-4 py-1.5 text-sm font-medium text-slate-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronLeft size={18} className="mr-1" />
+            Previous
+          </button>
+
+          <button
+            onClick={handleNext}
+            disabled={currentIndex === session.questions.length - 1}
+            className="flex items-center px-4 py-1.5 text-sm font-medium text-slate-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            Next
+            <ChevronRight size={18} className="ml-1" />
+          </button>
         </div>
       </div>
 
