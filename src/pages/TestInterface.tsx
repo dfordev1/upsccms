@@ -188,8 +188,11 @@ function TestInterface() {
       setCurrentIndex(0);
 
       await saveProgress(updates);
+      
+      // Navigate to results page
+      navigate(`/test/results/${id}`);
     },
-    [session, answers, marked, crossedOut, bookmarked, notes, timeSpent, saveProgress]
+    [session, answers, marked, crossedOut, bookmarked, notes, timeSpent, saveProgress, navigate, id]
   );
 
   // Fetch session

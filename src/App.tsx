@@ -12,6 +12,7 @@ import UploadCSV from './pages/UploadCSV';
 import CreateTest from './pages/CreateTest';
 import TestInterface from './pages/TestInterface';
 import TestHistory from './pages/TestHistory';
+import TestResults from './pages/TestResults';
 import Analytics from './pages/Analytics';
 import Flashcards from './pages/Flashcards';
 import PYQAnalysis from './pages/PYQAnalysis';
@@ -42,6 +43,11 @@ export default function App() {
             
             {/* Full screen test interface */}
             <Route path="/test/:id" element={<ProtectedRoute><TestInterface /></ProtectedRoute>} />
+            
+            {/* Test results (layout-wrapped) */}
+            <Route path="/test/results/:id" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+              <Route index element={<TestResults />} />
+            </Route>
 
             {/* Layout wrapped routes */}
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
